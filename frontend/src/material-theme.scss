@@ -1,0 +1,96 @@
+@use '@angular/material' as mat;
+
+:root {
+  @include mat.slide-toggle-overrides(
+    (
+      track-height: 30px,
+    )
+  );
+}
+
+html {
+  --bg-color: #0f0f0f;
+  --br-color: #232323;
+
+  height: 100%;
+  color-scheme: dark;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$chartreuse-palette,
+        tertiary: mat.$orange-palette,
+        warn: mat.$red-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  --mat-sys-surface: #0f0f0f;
+  --mat-sys-on-surface: #ffffff;
+  --mat-sys-surface-container-low: color-mix(in oklab, var(--color-black) 70%, transparent);
+
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  padding-block: 2rem;
+}
+
+.mat-expansion-panel {
+  --mat-sys-surface: color-mix(in oklab, var(--color-white) 10%, transparent);
+}
+
+.mat-expansion-panel-header.mat-focus-indicator.mat-expansion-toggle-indicator-after {
+  background-color: unset !important;
+}
+
+.mat-mdc-card.mdc-card {
+  backdrop-filter: blur(3px);
+}
+
+.yt-snackbar {
+  text-align: center;
+
+  .mdc-button__label,
+  .mdc-snackbar__surface.mat-mdc-snackbar-surface {
+    color: #ffffff;
+  }
+
+  &.success {
+    .mdc-snackbar__surface.mat-mdc-snackbar-surface {
+      background-color: #008000;
+    }
+  }
+
+  &.error {
+    .mdc-snackbar__surface.mat-mdc-snackbar-surface {
+      background-color: #ff0000;
+    }
+  }
+
+  &.warning {
+    .mdc-snackbar__surface.mat-mdc-snackbar-surface {
+      background-color: #ffa600ad;
+    }
+  }
+
+  &.info {
+    .mdc-snackbar__surface.mat-mdc-snackbar-surface {
+      background-color: #eeeeeec7;
+      color: #0f0f0f;
+    }
+  }
+}

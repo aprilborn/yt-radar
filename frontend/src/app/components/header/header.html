@@ -1,0 +1,51 @@
+<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between relative">
+  @let chipsClass =
+    'flex items-center gap-2 rounded-full border border-gray-800 bg-black px-3 py-1 text-xs absolute top-0';
+  <div [class]="chipsClass + ' right-0'">
+    <span [class]="'inline-block h-2 w-2 rounded-full ' + (isEnabled() ? 'bg-[#70e000]' : 'bg-red-400')"></span>
+    <span class="select-none">Status: {{ isEnabled() ? 'Running' : 'Paused' }}</span>
+  </div>
+
+  <div [class]="chipsClass + ' right-35'">
+    @if (isConnected()) {
+      <mat-icon class="h-4! w-4! text-xs! text-[#70e000]!">lock</mat-icon>
+    } @else {
+      <mat-icon class="h-4! w-4! text-xs! text-red-400!">lock_open</mat-icon>
+    }
+    <span class="select-none">{{ isConnected() ? 'Metube: connected' : 'Metube: disconnected' }}</span>
+  </div>
+
+  <div>
+    <div class="flex gap-2 items-center mb-4">
+      <mat-icon svgIcon="radar" />
+      <h1 class="text-2xl font-semibold tracking-tight">YT-Radar</h1>
+    </div>
+
+    <p
+      class="text-sm text-gray-400 rounded-full border border-gray-800 bg-black px-3 py-1 hidden md:flex items-center gap-2"
+    >
+      RSS watcher
+      <mat-icon class="text-base" fontIcon="arrow_right_alt" />
+      MeTube queue
+      <mat-icon class="text-base" fontIcon="arrow_right_alt" />
+      Home Assistant webhook
+    </p>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-end gap-2">
+    <button matMiniFab (click)="openDialog()" class="border-transparent! bg-[#0f0f0f]!">
+      <mat-icon class="text-base" fontIcon="settings" />
+    </button>
+
+    <button
+      mat-flat-button
+      (click)="togglePause()"
+      matTooltip="Master switch"
+      class="min-w-30!"
+      [disabled]="!isConnected()"
+    >
+      <mat-icon class="text-base">{{ isEnabled() ? 'pause' : 'play_arrow' }}</mat-icon>
+      {{ isEnabled() ? 'Pause' : 'Resume' }}
+    </button>
+  </div>
+</div>

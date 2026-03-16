@@ -1,0 +1,61 @@
+@let metubeControl = form.get('metubeUrl');
+
+<mat-card class="p-4 shadow-xl!">
+  <mat-card-header class="mb-5">
+    <mat-card-title>Settings</mat-card-title>
+    <mat-card-subtitle class="font-thin!"> Configure your MeTube & HA Webhook URLs </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content class="mt-2">
+    <form [formGroup]="form" (ngSubmit)="saveSettings()" class="grid grid-cols-1 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>MeTube URL</mat-label>
+        <input matInput formControlName="metubeUrl" ytMetubeValidator placeholder="http://metube:30094" />
+
+        @if (metubeControl.pending) {
+          <mat-icon matSuffix fontIcon="radar" class="animated-loading" />
+        } @else if (!metubeControl.pending && metubeControl.valid && metubeControl.value) {
+          <mat-icon matSuffix fontIcon="check" class="text-green-500!" />
+        } @else if (!metubeControl.pending && metubeControl.invalid) {
+          <mat-icon matSuffix fontIcon="close" class="text-red-500!" />
+        }
+
+        @if (form.get('metubeUrl')?.errors?.['invalidMetubeUrl']) {
+          <mat-error>Invalid MeTube URL</mat-error>
+        }
+
+        @if (form.get('metubeUrl')?.errors?.['required']) {
+          <mat-error>MeTube URL is required</mat-error>
+        }
+
+        @if (form.get('metubeUrl')?.errors?.['invalidUrl']) {
+          <mat-error>Invalid URL</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        @let isValid = form.controls.webhookUrl.valid && form.controls.webhookUrl.value;
+
+        <mat-label>Home Assistant Webhook URL</mat-label>
+        <input matInput formControlName="webhookUrl" placeholder="https://ha.../api/webhook/..." />
+        <mat-icon
+          matSuffix
+          fontIcon="webhook"
+          matTooltip="Send now to test"
+          class="relative z-10"
+          [class.cursor-pointer]="isValid"
+          [class.opacity-50]="!isValid"
+          (click)="isValid && sendWebhook()"
+        />
+        <mat-hint>Used unless overridden per channel</mat-hint>
+      </mat-form-field>
+
+      <div class="flex items-center justify-end gap-2">
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || form.pending">
+          <mat-icon class="text-base">save</mat-icon>
+          Save
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

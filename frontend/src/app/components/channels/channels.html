@@ -1,0 +1,320 @@
+<div class="flex justify-end mb-4 gap-4">
+  @if (channels()?.length) {
+    <button mat-stroked-button class="border-transparent! bg-[#0f0f0f]!" (click)="showForm()">
+      <mat-icon class="text-base!">add</mat-icon>
+      Add channel
+    </button>
+  }
+</div>
+
+<mat-card class="bg-gray-900/60 border border-gray-800 shadow-none relative">
+  <mat-card-header>
+    <mat-card-title>Manage watchers</mat-card-title>
+  </mat-card-header>
+
+  <button mat-icon-button (click)="refreshChannels(true)" class="absolute! top-1 right-2">
+    <mat-icon>refresh</mat-icon>
+  </button>
+
+  <mat-card-content class="mt-2 relative overflow-hidden" [class.flip-card-animation]="showFlip()">
+    @if (showShine()) {
+      <div class="shine-line shine-line-animation"></div>
+    }
+
+    <div class="overflow-x-auto rounded-xl border border-gray-800">
+      <table mat-table [dataSource]="channels()" multiTemplateDataRows class="w-full bg-transparent">
+        <!-- Enabled -->
+        <ng-container matColumnDef="enabled">
+          <th mat-header-cell *matHeaderCellDef>Enabled</th>
+          <td mat-cell *matCellDef="let ch">
+            <mat-slide-toggle
+              [ngModel]="ch.enabled"
+              (ngModelChange)="toggleChannel($event, ch)"
+              class="max-w-65!"
+              (click)="$event.stopPropagation()"
+            />
+          </td>
+        </ng-container>
+
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Channel</th>
+          <td mat-cell *matCellDef="let ch">
+            <div class="font-medium">{{ ch.name }}</div>
+          </td>
+        </ng-container>
+
+        <!-- Last video name -->
+        <ng-container matColumnDef="videoName">
+          <th mat-header-cell *matHeaderCellDef>Last Video</th>
+          <td mat-cell *matCellDef="let ch">
+            <div
+              class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-40"
+              [matTooltip]="ch.lastVideoTitle"
+            >
+              {{ ch.lastVideoTitle || '—' }}
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Last checked -->
+        <ng-container matColumnDef="lastCheckedAt">
+          <th mat-header-cell *matHeaderCellDef class="text-center!">Last check</th>
+          <td mat-cell *matCellDef="let ch" class="text-center!">
+            <span>{{ ch.lastCheckedAt ? (ch.lastCheckedAt | date: 'HH:mm') : '—' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Next check -->
+        <ng-container matColumnDef="nextCheckAt">
+          <th mat-header-cell *matHeaderCellDef class="text-center!">Next check</th>
+          <td mat-cell *matCellDef="let ch" class="text-center!">
+            <span>{{ ch.nextCheckAt ? (ch.nextCheckAt | date: 'HH:mm') : '—' }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Last capture -->
+        <ng-container matColumnDef="lastCaptureAt">
+          <th mat-header-cell *matHeaderCellDef class="text-center!">Last capture</th>
+          <td mat-cell *matCellDef="let ch" class="text-center!">
+            {{ ch.lastCaptureAt ? (ch.lastCaptureAt | date: 'HH:mm') : '—' }}
+          </td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-center!">Actions</th>
+          <td mat-cell *matCellDef="let ch">
+            <div class="flex items-center justify-center gap-2">
+              <button mat-icon-button (click)="editChannel(ch); $event.stopPropagation()" matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <!-- <button mat-icon-button (click)="resetLastSeen(ch)" matTooltip="Reset last seen">
+                <mat-icon>restart_alt</mat-icon>
+              </button> -->
+
+              <button
+                mat-icon-button
+                (click)="runOnce(ch.id); $event.stopPropagation()"
+                [matTooltip]="!settings().enabled ? 'The app is paused' : 'Check now'"
+                [disabled]="!settings().enabled"
+              >
+                <mat-icon>track_changes</mat-icon>
+              </button>
+
+              <button mat-icon-button (click)="deleteChannel(ch.id); $event.stopPropagation()" matTooltip="Delete">
+                <mat-icon class="text-red-400">delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Expand -->
+        <ng-container matColumnDef="expand">
+          <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+          <td mat-cell *matCellDef="let ch" class="w-10">
+            @let isExpanded = expandedChannel() === ch.id;
+            <button
+              matIconButton
+              aria-label="expand row"
+              (click)="expandedChannel.set(isExpanded ? null : ch.id); $event.stopPropagation()"
+              class="toggle-button"
+              [class.toggle-button-expanded]="isExpanded"
+            >
+              <mat-icon>keyboard_arrow_down</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Expanded content -->
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let ch" [attr.colspan]="displayedColumns.length">
+            @let isExpanded = expandedChannel() === ch.id;
+            <div class="details-wrapper" [class.details-wrapper--expanded]="isExpanded">
+              <div class="details-content">
+                <div class="grid grid-cols-12 gap-2 py-4 w-full">
+                  @let isIntervalSelected = ch.pollType === pollType.INTERVAL;
+
+                  <!-- Channel info -->
+                  <div class="flex flex-col col-span-4">
+                    <div class="flex flex-col gap-5 px-4">
+                      <figure class="flex flex-col items-start gap-5">
+                        <div class="max-w-45">
+                          <yt-card
+                            [imageUrl]="ch.channelAvatarPath"
+                            [url]="'https://www.youtube.com/channel/' + ch.channelId"
+                            customClass="max-w-45 rounded-full overflow-hidden"
+                          />
+                        </div>
+
+                        <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
+                          <span class="text-4xl font-bold">{{ ch.name }}</span>
+                          <!-- <span class="text-sm text-gray-500">{{ch.rssUrl}}</span> -->
+                          <span class="text-sm text-gray-500 max-h-80 overflow-y-auto">{{
+                            ch.channelDescription ?? '—'
+                          }}</span>
+                        </figcaption>
+                      </figure>
+                    </div>
+                  </div>
+
+                  <!-- Channel details -->
+                  <div class="flex flex-col col-span-4">
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      <span>Status:</span>
+                      <p class="flex items-center">
+                        <span
+                          [class]="
+                            'inline-block h-2 w-2 mr-2 rounded-full ' + (ch.enabled ? 'bg-green-400' : 'bg-red-400')
+                          "
+                        ></span>
+                        <span>{{ ch.enabled ? 'Enabled' : 'Disabled' }}</span>
+                      </p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 items-center border-b border-gray-700">
+                      <span>Format:</span>
+
+                      <div>
+                        <div
+                          class="border-gray-800 inline-block px-2 py-1 text-xs rounded-full"
+                          [class.bg-[#0000ff]]="ch.format === 'mp4'"
+                          [class.bg-[#ffa600ad]]="ch.format === 'mp3'"
+                        >
+                          {{ ch.format }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      @if (isIntervalSelected) {
+                        <span>Poll interval:</span>
+                      } @else {
+                        <span>Poll time:</span>
+                      }
+                      @if (isIntervalSelected && ch?.pollInterval) {
+                        <span>
+                          {{ ch.pollInterval + ' minute' + (ch.pollInterval > 1 ? 's' : '') }}
+                        </span>
+                      } @else {
+                        <span>{{ ch.pollTime | date: 'HH:mm' }}</span>
+                      }
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      @let isWebhookEnabled = ch.notifyHA;
+                      @let isCustom = ch.webhookOverride?.length;
+                      @let haWebhook = ch.webhookOverride ?? settings().webhookUrl;
+
+                      <span>Notify HA:</span>
+                      <span class="whitespace-nowrap overflow-hidden text-ellipsis" [matTooltip]="haWebhook">
+                        <span
+                          [class]="
+                            'inline-block h-2 w-2 mr-2 rounded-full ' +
+                            (isWebhookEnabled ? 'bg-green-400' : 'bg-red-400')
+                          "
+                        ></span>
+                        {{ isWebhookEnabled ? 'Enabled' : 'Disabled' }} {{ isCustom ? ' (Custom)' : '' }}
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      <span>Total downloads:</span>
+                      <span>{{ ch.totalDownloads }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      <span>Last capture:</span>
+                      <span>{{
+                        ch?.lastCaptureAt
+                          ? (ch.lastCaptureAt | day) + ' ' + 'at ' + (ch.lastCaptureAt | date: 'HH:mm')
+                          : '—'
+                      }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      <span>Last check:</span>
+                      <span>{{
+                        ch.lastCheckedAt
+                          ? (ch.lastCheckedAt | day) + ' ' + 'at ' + (ch.lastCheckedAt | date: 'HH:mm')
+                          : '—'
+                      }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      <span>Next check:</span>
+                      <span>{{
+                        ch.nextCheckAt ? (ch.nextCheckAt | day) + ' ' + 'at ' + (ch.nextCheckAt | date: 'HH:mm') : '—'
+                      }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4">
+                      <span>Created:</span>
+                      <span>{{ ch.createdAt ? (ch.createdAt | date: 'MMMM dd') : '—' }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Last video -->
+                  <div class="flex flex-col col-span-4">
+                    <div class="flex flex-col gap-5 px-4">
+                      <figure class="flex flex-col gap-5 items-center">
+                        <yt-card [imageUrl]="ch.lastVideoThumbnailPath" [url]="'https://youtu.be/' + ch.lastVideoId" />
+
+                        <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
+                          <strong class="text-center">{{ ch.lastVideoTitle ?? 'No video found' }}</strong>
+                          <span class="text-sm text-gray-500 max-h-80 overflow-y-auto">
+                            {{ ch.lastVideoDescription ?? 'No description found' }}
+                          </span>
+                        </figcaption>
+                      </figure>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-950/40 whitespace-nowrap"></tr>
+
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="hover:bg-white/3! transition hover:-bg-0.5 cursor-pointer"
+          (click)="expandedChannel.set(row.id === expandedChannel() ? null : row.id)"
+          cdkDrag
+        ></tr>
+
+        <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="example-detail-row"></tr>
+      </table>
+    </div>
+
+    @if (!channels()?.length) {
+      <yt-no-data [message]="'No channels found'" (action)="showForm()" />
+    }
+
+    <div class="flex justify-between text-sm text-gray-500 mt-4">
+      <div>
+        @if (channels().filter(c => c.enabled).length > 0) {
+          @let nextScanIn = closestCheckIn().totalSeconds > 0 ? closestCheckIn().displayTime : 'checking...';
+          <p>
+            <small>Next scan in: {{ nextScanIn }}</small>
+          </p>
+          <p>
+            <small>Next scan for: {{ closestCheckIn().channel }} </small>
+          </p>
+        }
+      </div>
+
+      <div class="text-right">
+        <p>
+          <small>Total channels: {{ channels()?.length }} </small>
+        </p>
+        <p>
+          <small>Active watchers: {{ channels()?.filter(c => c.enabled).length }} </small>
+        </p>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

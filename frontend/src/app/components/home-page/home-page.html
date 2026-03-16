@@ -1,0 +1,19 @@
+<div class="mx-auto max-w-7xl px-4 py-6 lg:px-8 rounded-lg fade-in" ytStrippedBg>
+  <!-- Header -->
+  <yt-header />
+</div>
+
+<!-- Channels Table -->
+<section class="mx-auto max-w-7xl px-4 py-6 lg:px-8 mt-10 rounded-lg fade-in" ytStrippedBg>
+  <yt-channels />
+</section>
+
+@if (showForm()) {
+  <div class="mx-auto max-w-7xl px-4 py-6 lg:px-8 mt-10 rounded-lg fade-in" ytStrippedBg>
+    <div class="grid grid-cols-12 gap-6 lg:grid-cols-12">
+      <section class="col-span-12">
+        <yt-channel-form />
+      </section>
+    </div>
+  </div>
+}

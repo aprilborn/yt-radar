@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, of, tap } from 'rxjs';
 import { DefaultSettings } from '../constants';
-import { ChannelModel } from '../models';
+import { ChannelModel, NextCheckModel } from '../models';
 import { StorageService } from './storage.service';
 import { SettingsModel } from '../../shared';
 
@@ -30,6 +30,13 @@ export class HttpService {
     return this._http.get<ChannelModel[]>('/api/channels').pipe(
       tap((channels) => this._storage.channels.set(channels)),
       catchError(async () => []),
+    );
+  }
+
+  getNextCheck(): Observable<NextCheckModel> {
+    return this._http.get<NextCheckModel>('/api/next-check').pipe(
+      tap((nextCheck) => this._storage.nextCheck.set(nextCheck)),
+      catchError(async () => ({ ok: false, nextCheckAt: null, channel: null })),
     );
   }
 

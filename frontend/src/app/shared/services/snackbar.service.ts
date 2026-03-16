@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { WebhookSnackbar } from '../components/webhook-snackbar/webhook-snackbar';
 
 export enum SnackbarType {
   SUCCESS = 'success',
   ERROR = 'error',
   INFO = 'info',
   WARNING = 'warning',
+  DARK = 'dark',
 }
 
 @Injectable({
@@ -14,8 +16,17 @@ export enum SnackbarType {
 export class SnackbarService {
   constructor(private readonly _snackBar: MatSnackBar) {}
 
-  open(message: string, action: string, type: SnackbarType, duration: number = 3000) {
-    this._snackBar.open(message, action, {
+  open(message: string, action: string, type: SnackbarType, duration: number = 3000): MatSnackBarRef<unknown> {
+    return this._snackBar.open(message, action, {
+      horizontalPosition: 'right',
+      panelClass: ['yt-snackbar', type],
+      duration,
+    });
+  }
+
+  openDialog(type: SnackbarType, duration: number = 3000): MatSnackBarRef<WebhookSnackbar> {
+    return this._snackBar.openFromComponent(WebhookSnackbar, {
+      data: { type, duration },
       horizontalPosition: 'right',
       panelClass: ['yt-snackbar', type],
       duration,

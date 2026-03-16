@@ -8,6 +8,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardHeader, MatCardSubtitle, MatCardTitle } from '@angular/material/card';
 import { MatOption } from '@angular/material/core';
@@ -34,6 +35,7 @@ import { combineLatest, map } from 'rxjs';
 @Component({
   selector: 'yt-channel-form',
   imports: [
+    MatAutocompleteModule,
     FormsModule,
     MatAccordion,
     MatButton,
@@ -80,6 +82,12 @@ export class ChannelForm implements OnInit {
   isSaving = signal(false);
   isEditing = computed(() => !!this._storage.editingChannel());
   form!: FormGroup<ChannelFormModel>;
+  folders = signal<string[]>(
+    this._storage
+      .channels()
+      ?.map(({ tag }) => tag)
+      .filter(Boolean) || [],
+  );
 
   constructor() {
     this._trackChannel();
@@ -110,7 +118,6 @@ export class ChannelForm implements OnInit {
         validators: [Validators.required, Validators.min(1), Validators.max(1440)],
       }),
       pollTime: this._fb.control(null),
-      // preferH264: this._fb.control(false, { nonNullable: true }),
     });
   }
 

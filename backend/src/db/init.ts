@@ -14,8 +14,21 @@ export function initSchema() {
   `);
 
   db.run(sql`
+      CREATE TABLE IF NOT EXISTS channel_group (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        sortOrder INTEGER NOT NULL DEFAULT 0,
+        color TEXT DEFAULT '#ffffff',
+        icon TEXT,
+        createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+        updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+  `);
+
+  db.run(sql`
     CREATE TABLE IF NOT EXISTS channel (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      groupId INTEGER REFERENCES channel_group(id) ON DELETE SET NULL,
       name TEXT NOT NULL,
       channelId  TEXT,
       channelDescription  TEXT,
@@ -46,8 +59,20 @@ export function initSchema() {
       updatedAt TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
   db.run(sql `
     CREATE INDEX IF NOT EXISTS idx_channel_enabled_nextCheckAt
     ON channel (enabled, nextCheckAt);
   `);
+
+  addGroupIdColumn();
+}
+
+function addGroupIdColumn() {
+  const columns = db.all(sql`PRAGMA table_info(channel)`);
+  const hasGroupId = columns.some((c: any) => c.name === "groupId");
+
+  if (!hasGroupId) {
+    db.run(sql`ALTER TABLE channel ADD COLUMN groupId INTEGER`);
+  }
 }

@@ -4,11 +4,11 @@ import { db } from "../db/index.js";
 import { channel } from "../db/schema.js";
 
 export async function healthRoutes(app: FastifyInstance) {
-  app.get("/api/public/status", async () => {
+  app.get("/api/health", async () => {
     return { ok: true };
   });
 
-  app.get("/api/public/last-video", async () => {
+  app.get("/api/last-video", async () => {
     const [row] = await db.select()
       .from(channel)
       .where(sql`lastCaptureAt IS NOT NULL`)
@@ -38,7 +38,7 @@ export async function healthRoutes(app: FastifyInstance) {
     };
   });
 
-  app.get("/api/public/next-check", async () => {
+  app.get("/api/next-check", async () => {
     const [row] = await db.select()
       .from(channel)
       .where(sql`nextCheckAt IS NOT NULL AND enabled = 1`)

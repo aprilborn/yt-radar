@@ -154,7 +154,15 @@
               <!-- Folder / Tag -->
               <mat-form-field appearance="outline" class="md:col-span-6" subscriptSizing="dynamic">
                 <mat-label>Folder / Tag</mat-label>
-                <input matInput formControlName="tag" placeholder="e.g. podcasts" />
+                <input matInput formControlName="tag" placeholder="e.g. podcasts" type="text" [matAutocomplete]="tag" />
+
+                <mat-autocomplete #tag="matAutocomplete">
+                  @for (folder of folders(); track folder) {
+                    <mat-option [value]="folder">
+                      {{ folder }}
+                    </mat-option>
+                  }
+                </mat-autocomplete>
               </mat-form-field>
 
               <!-- Custom webhook -->

@@ -20,8 +20,25 @@ export const settings = sqliteTable("settings", {
     .default(sql`(datetime('now'))`)
 });
 
+export const channelGroup = sqliteTable("channel_group", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull().unique(),
+  sortOrder: integer("sortOrder").notNull().default(0),
+  color: text("color").default("#ffffff"),
+  icon: text("icon"),
+
+  createdAt: text("createdAt")
+    .notNull()
+    .default(sql`(datetime('now'))`),
+
+  updatedAt: text("updatedAt")
+    .notNull()
+    .default(sql`(datetime('now'))`)
+});
+
 export const channel = sqliteTable("channel", {
   id: integer("id").primaryKey({ autoIncrement: true }),
+  groupId: integer("groupId").references(() => channelGroup.id, { onDelete: "set null" }),
   name: text("name"),
   channelId: text("channelId"),
   channelDescription: text("channelDescription"),

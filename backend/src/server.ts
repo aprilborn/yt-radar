@@ -21,7 +21,7 @@ const __dirname = path.dirname(__filename);
 
 const PORT = Number(process.env.PORT ?? 8000);
 const HOST = process.env.HOST ?? "0.0.0.0";
-const DATA_DIR = process.env.DATA_DIR ?? "/data";
+const DATA_DIR = process.env.DATA_DIR ?? "./data";
 const IMAGES_DIR = path.join(DATA_DIR, "images");
 const WEB_ROOT = path.resolve(
   process.env.WEB_ROOT ?? path.join(__dirname, "../public")

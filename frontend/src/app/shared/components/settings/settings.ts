@@ -76,7 +76,10 @@ export class Settings implements OnInit {
       .pipe(
         tap((response) => {
           if (response.ok) {
-            this._snackBar.open('Webhook sent successfully.', null, SnackbarType.SUCCESS);
+            this._snackBar
+              .open('Webhook sent successfully.', null, SnackbarType.SUCCESS)
+              .afterDismissed()
+              .subscribe(() => this._showPayloadExample());
           } else {
             this._snackBar.open('Failed to send webhook.', null, SnackbarType.ERROR);
           }
@@ -87,5 +90,9 @@ export class Settings implements OnInit {
         }),
       )
       .subscribe();
+  }
+
+  private _showPayloadExample() {
+    this._snackBar.openDialog(SnackbarType.DARK, null);
   }
 }

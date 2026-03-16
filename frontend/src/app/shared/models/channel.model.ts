@@ -50,3 +50,12 @@ export interface ChannelFormModel {
   pollInterval: FormControl<ChannelModel['pollInterval']>;
   pollTime: FormControl<ChannelModel['pollTime']>;
 }
+
+export interface NextCheckModel {
+  ok: boolean;
+  nextCheckAt: Nullable<string>;
+  channel: Nullable<{
+    id: number;
+    name: string;
+  }>;
+}

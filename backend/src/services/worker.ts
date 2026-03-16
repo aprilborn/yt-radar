@@ -15,6 +15,8 @@ import type { Channel, Settings } from "../db/types.js";
 import { calculateNextCheck } from "../utils/schedule.helper.js";
 
 let workerTimer: NodeJS.Timeout | null = null;
+const DATA_DIR = process.env.DATA_DIR ?? "./data";
+const IMAGES_DIR = path.join(DATA_DIR, "images");
 
 async function downloadThumbnailOnce(
   videoId: string,
@@ -27,7 +29,7 @@ async function downloadThumbnailOnce(
   const filename = `video-${videoId}.jpg`;
 
   const filePath = path.join(
-    process.env.IMAGES_DIR ?? "/data/images",
+    process.env.IMAGES_DIR ?? IMAGES_DIR,
     filename
   );
 
@@ -36,7 +38,7 @@ async function downloadThumbnailOnce(
   }
 
   const prevFilePath = path.join(
-    process.env.IMAGES_DIR ?? "/data/images",
+    process.env.IMAGES_DIR ?? IMAGES_DIR,
     `video-${prevVideoId}.jpg`
   );
 

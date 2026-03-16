@@ -3,8 +3,9 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 
-const dbPath =
-  process.env.DATABASE_URL?.replace("file:", "") ?? "/data/app.db";
+const dataDir = process.env.DATA_DIR ?? "/data";
+const dbPath = path.join(dataDir, "app.db");
+const imagesDir = path.join(dataDir, "images");
 
 const dir = path.dirname(dbPath);
 if (!fs.existsSync(dir)) {

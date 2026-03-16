@@ -2,7 +2,8 @@ import { log } from "node:console";
 import fs from "node:fs";
 import path from "node:path";
 
-const IMAGE_DIR = process.env.IMAGES_DIR ?? "./data/images";
+const dataDir = process.env.DATA_DIR ?? "/data";
+const IMAGE_DIR = path.join(dataDir, "images");
 
 export class ImagesService {
 
@@ -37,7 +38,6 @@ export class ImagesService {
 
     try {
       const filePath = path.join(IMAGE_DIR, sanitizedFilename);
-      console.log('filePath', filePath);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     } catch (e) {
       console.error("Image delete error:", e);

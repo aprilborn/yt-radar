@@ -21,6 +21,8 @@ const __dirname = path.dirname(__filename);
 
 const PORT = Number(process.env.PORT ?? 8000);
 const HOST = process.env.HOST ?? "0.0.0.0";
+const DATA_DIR = process.env.DATA_DIR ?? "/data";
+const IMAGES_DIR = path.join(DATA_DIR, "images");
 const WEB_ROOT = path.resolve(
   process.env.WEB_ROOT ?? path.join(__dirname, "../public")
 );
@@ -59,7 +61,7 @@ await app.register(staticPlugin, {
 });
 
 await app.register(staticPlugin, {
-  root: path.resolve("./data/images"),
+  root: path.resolve(IMAGES_DIR),
   prefix: "/images/",
   decorateReply: false,
 });
@@ -77,5 +79,15 @@ app.setNotFoundHandler((req, reply) => {
 });
 
 startWorker();
+
+process.on('SIGTERM', async () => {
+  await app.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  await app.close();
+  process.exit(0);
+});
 
 await app.listen({ port: PORT, host: HOST });

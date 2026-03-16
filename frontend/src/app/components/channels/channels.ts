@@ -203,7 +203,7 @@ export class Channels implements OnInit {
   }
 
   private _getChannels(): Observable<ChannelModel[]> {
-    return this._httpService.getChannels()
+    return this._httpService.getChannels();
   }
 
   private _openConfirmationDialog(): Observable<boolean> {

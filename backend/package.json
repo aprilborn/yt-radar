@@ -1,6 +1,6 @@
 {
   "name": "yt-back",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "description": "",
   "main": "src/server.ts",
   "private": true,

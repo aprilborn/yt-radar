@@ -83,15 +83,13 @@ export class ChannelForm implements OnInit {
   protected readonly defaultChannel = DefaultChannel;
   readonly globalWebhook$ = toObservable(this._storage.settings).pipe(map((settings) => settings.webhookUrl));
 
+  form!: FormGroup<ChannelFormModel>;
   isSaving = signal(false);
   isEditing = computed(() => !!this._storage.editingChannel());
-  form!: FormGroup<ChannelFormModel>;
-  folders = signal<string[]>(this._storage.channels()
-    ?.map(({ tag }) => tag)
-    .filter(Boolean) || [],
-  );
-  codecs = Codecs;
-  types = Types;
+  folders = computed<string[]>(() => [...new Set(this._storage.channels()?.map(({ tag }) => tag))].filter(Boolean));
+
+  readonly codecs = Codecs;
+  readonly types = Types;
   readonly videoFormats = VideoFormats;
   readonly audioFormats = AudioFormats;
   readonly videoFormatLabels = VideoFormatLabels;
@@ -135,11 +133,11 @@ export class ChannelForm implements OnInit {
     });
 
     this.formatOptions$ = this.form.controls.type.valueChanges
-    .pipe(
-      startWith(this.form.controls.type.value),
-      map((type) => type === Types.VIDEO ? Object.values(this.videoFormats) : Object.values(this.audioFormats)),
-      takeUntilDestroyed(this._destroyRef),
-    );
+      .pipe(
+        startWith(this.form.controls.type.value),
+        map(() => this.form.controls.type.value === Types.VIDEO ? Object.values(this.videoFormats) : Object.values(this.audioFormats)),
+        takeUntilDestroyed(this._destroyRef),
+      );
   }
 
   ngOnInit() {
@@ -271,7 +269,10 @@ export class ChannelForm implements OnInit {
     .pipe(
       takeUntilDestroyed(this._destroyRef),
       tap((type) => {
-        if (type === Types.AUDIO) this.form.controls.codec.disable();
+        if (type === Types.AUDIO) {
+          this.form.controls.codec.reset();
+          this.form.controls.codec.disable();
+        }
         else this.form.controls.codec.enable();
       })
     )

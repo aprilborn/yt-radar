@@ -1,7 +1,7 @@
 {
   "name": "yt-radar",
   "description": "YouTube RSS Feed Watcher",
-  "version": "0.0.2",
+  "version": "0.0.0",
   "type": "module",
   "engines": {
     "node": ">=22.19.0"

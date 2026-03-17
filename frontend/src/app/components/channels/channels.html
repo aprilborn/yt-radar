@@ -272,7 +272,7 @@
                         <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
                           <strong class="text-center">{{ ch.lastVideoTitle ?? 'No video found' }}</strong>
                           <span class="text-sm text-gray-500 max-h-80 overflow-y-auto">
-                            {{ ch.lastVideoDescription ?? 'No description found' }}
+                            {{ ch?.lastVideoDescription?.trim() ?? 'No description found' }}
                           </span>
                         </figcaption>
                       </figure>

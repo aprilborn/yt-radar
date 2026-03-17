@@ -78,13 +78,12 @@
 
       <!-- Format -->
       <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>        
-        @let formatOptions = formatOptions$ | async;
         @let isVideoType = form.controls.type.value === types.VIDEO;
 
         <mat-label>Format</mat-label>
 
-        <mat-select formControlName="format" [value]="isVideoType ? videoFormats.AUTO : audioFormats.M4A">
-          @for (format of formatOptions; track format) {
+        <mat-select formControlName="format">
+          @for (format of formatOptions$ | async; track format) {
             @let label = isVideoType ? videoFormatLabels[format] : audioFormatLabels[format];
             <mat-option [value]="format">
               {{ label }}

@@ -1,4 +1,5 @@
-import { Component, computed, DestroyRef, effect, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -27,14 +28,16 @@ import { MatTimepicker, MatTimepickerInput, MatTimepickerToggle } from '@angular
 import { MatTooltip } from '@angular/material/tooltip';
 import { DefaultChannel } from '@shared/constants';
 import { equalJson } from '@shared/helpers';
-import { ChannelFormModel, ChannelModel, Formats, PollType } from '@shared/models';
+import { AudioFormats, ChannelFormModel, ChannelModel, Codecs, PollType, Types, VideoFormats } from '@shared/models';
 import { HttpService, SnackbarService, SnackbarType, StorageService } from '@shared/services';
 import { YtValidators } from '@shared/validators';
-import { combineLatest, map } from 'rxjs';
+import { combineLatest, map, Observable, startWith, tap } from 'rxjs';
+import { AudioFormatLabels, CodecLabels, VideoFormatLabels } from 'src/app/shared/constants/labels.const';
 
 @Component({
   selector: 'yt-channel-form',
   imports: [
+    AsyncPipe,
     MatAutocompleteModule,
     FormsModule,
     MatAccordion,
@@ -66,6 +69,7 @@ import { combineLatest, map } from 'rxjs';
   ],
   templateUrl: './channel-form.html',
   styleUrl: './channel-form.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChannelForm implements OnInit {
   private readonly _fb = new FormBuilder();
@@ -82,12 +86,20 @@ export class ChannelForm implements OnInit {
   isSaving = signal(false);
   isEditing = computed(() => !!this._storage.editingChannel());
   form!: FormGroup<ChannelFormModel>;
-  folders = signal<string[]>(
-    this._storage
-      .channels()
-      ?.map(({ tag }) => tag)
-      .filter(Boolean) || [],
+  folders = signal<string[]>(this._storage.channels()
+    ?.map(({ tag }) => tag)
+    .filter(Boolean) || [],
   );
+  codecs = Codecs;
+  types = Types;
+  videoFormats = VideoFormats;
+  audioFormats = AudioFormats;
+  videoFormatLabels = VideoFormatLabels;
+  audioFormatLabels = AudioFormatLabels;
+  codecLabels = CodecLabels;
+
+  formatOptions$: Observable<VideoFormats[] | AudioFormats[]>;
+  codecOptions = Object.values(this.codecs);
 
   constructor() {
     this._trackChannel();
@@ -99,7 +111,9 @@ export class ChannelForm implements OnInit {
         nonNullable: true,
         validators: [Validators.required, Validators.pattern(/^https?:\/\//)],
       }),
-      format: this._fb.control(Formats.MP4, { nonNullable: true, validators: Validators.required }),
+      type: this._fb.control(Types.VIDEO, { nonNullable: true, validators: Validators.required }),
+      format: this._fb.control(this.videoFormats.AUTO, { nonNullable: true, validators: Validators.required }),
+      codec: this._fb.control(this.codecs.AUTO, { nonNullable: true, validators: Validators.required }),
       startFromLast: this._fb.control(true, { nonNullable: true, validators: Validators.required }),
       downloadShorts: this._fb.control(false, {
         nonNullable: true,
@@ -119,11 +133,19 @@ export class ChannelForm implements OnInit {
       }),
       pollTime: this._fb.control(null),
     });
+
+    this.formatOptions$ = this.form.controls.type.valueChanges
+    .pipe(
+      startWith(this.form.controls.type.value),
+      map((type) => type === Types.VIDEO ? Object.values(this.videoFormats) : Object.values(this.audioFormats)),
+      takeUntilDestroyed(this._destroyRef),
+    );
   }
 
   ngOnInit() {
     this._trackWebhook();
     this._trackPollType();
+    this._trackType();
     this._scrollToTop();
   }
 
@@ -224,6 +246,17 @@ export class ChannelForm implements OnInit {
       this.form.clearValidators();
       this.form.reset(DefaultChannel);
     }
+  }
+  private _trackType() {
+    this.form.controls.type.valueChanges
+    .pipe(
+      takeUntilDestroyed(this._destroyRef),
+      tap((type) => {
+        if (type === Types.AUDIO) this.form.controls.codec.disable();
+        else this.form.controls.codec.enable();
+      })
+    )
+    .subscribe();
   }
 
   private _updateChannels(channel: ChannelModel) {

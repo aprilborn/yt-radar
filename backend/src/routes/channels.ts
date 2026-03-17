@@ -25,7 +25,6 @@ export function channelsRoutes(app: FastifyInstance) {
       .select()
       .from(channel)
       .orderBy(asc(channel.sortOrder));
-    // return channels.map(channel => ({ ...channel, url: channel.rssUrl }));
   });
 
   // GET one
@@ -37,7 +36,6 @@ export function channelsRoutes(app: FastifyInstance) {
       .from(channel)
       .where(eq(channel.id, Number(id)));
 
-    // return row ? { ...row, url: row.rssUrl } : null;
     return row ?? null;
   });
 
@@ -123,6 +121,8 @@ export function channelsRoutes(app: FastifyInstance) {
           channelAvatarPath: avatarPath,
           rssUrl: rssUrl as string,
 
+          type: body.type ?? "video",
+          codec: body.codec ?? "auto",
           format: body.format ?? "mp4",
           enabled: body.enabled ?? true,
           startFromLast: body.startFromLast ?? true,

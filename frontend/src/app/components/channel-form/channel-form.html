@@ -45,24 +45,52 @@
         }
       </mat-form-field>
 
+      <!-- Type -->
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option [value]="types.VIDEO">Video</mat-option>
+          <mat-option [value]="types.AUDIO">Audio</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Codec -->
+      @if (form.controls.type.value === types.VIDEO) {
+        <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
+          <mat-label>Codec</mat-label>
+          <mat-select formControlName="codec">
+            @for (codec of codecOptions; track codec) {
+              <mat-option [value]="codec">{{ codecLabels[codec] }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
       <!-- Format -->
-      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>        
+        @let formatOptions = formatOptions$ | async;
+        @let isVideoType = form.controls.type.value === types.VIDEO;
+
         <mat-label>Format</mat-label>
-        <mat-select formControlName="format">
-          <mat-option value="mp4">Video</mat-option>
-          <mat-option value="mp3">Audio</mat-option>
+
+        <mat-select formControlName="format" [value]="isVideoType ? videoFormats.AUTO : audioFormats.M4A">
+          @for (format of formatOptions; track format) {
+            @let label = isVideoType ? videoFormatLabels[format] : audioFormatLabels[format];
+            <mat-option [value]="format">
+              {{ label }}
+            </mat-option>
+          }
         </mat-select>
       </mat-form-field>
 
       <!-- Poll type -->
-      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic">
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
         <mat-label>Poll type</mat-label>
         <mat-select formControlName="pollType">
           <mat-option value="interval">Interval</mat-option>
           <mat-option value="time">Time</mat-option>
         </mat-select>
-        <mat-hint>
-          Interval: check every X minutes. <br />
+        <mat-hint>Interval: check every X minutes. <br />
           Time: check once a day at a specific time.
         </mat-hint>
       </mat-form-field>
@@ -153,7 +181,7 @@
 
               <!-- Folder / Tag -->
               <mat-form-field appearance="outline" class="md:col-span-6" subscriptSizing="dynamic">
-                <mat-label>Folder / Tag</mat-label>
+                <mat-label>Folder</mat-label>
                 <input matInput formControlName="tag" placeholder="e.g. podcasts" type="text" [matAutocomplete]="tag" />
 
                 <mat-autocomplete #tag="matAutocomplete">

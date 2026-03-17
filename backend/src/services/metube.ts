@@ -1,6 +1,8 @@
 export async function sendToMeTube(opts: {
   metubeUrl: string;
   videoUrl: string;
+  type: string;
+  codec: string;
   format: string;
   prefix: string;
   tag: string;
@@ -19,6 +21,8 @@ export async function sendToMeTube(opts: {
       body: JSON.stringify({
         url: opts.videoUrl,
         quality: "best",
+        download_type: opts.type,
+        codec: opts.codec,
         format: opts.format,
         custom_name_prefix: opts.prefix,
         folder: opts.tag,

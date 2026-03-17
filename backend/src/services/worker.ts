@@ -103,6 +103,8 @@ export async function processChannel(
       await sendToMeTube({
         metubeUrl: appSettings.metubeUrl,
         videoUrl: latest.link ?? "",
+        type: ch.type,
+        codec: ch.codec ?? null,
         format: ch.format,
         prefix: ch.prefix ?? "",
         tag: ch.tag ?? ""
@@ -137,6 +139,8 @@ export async function processChannel(
   await sendToMeTube({
     metubeUrl: appSettings.metubeUrl,
     videoUrl: latest.link ?? "",
+    type: ch.type,
+    codec: ch.codec ?? null,
     format: ch.format,
     prefix: ch.prefix ?? "",
     tag: ch.tag ?? ""

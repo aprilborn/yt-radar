@@ -1,12 +1,15 @@
-import { SettingsModel } from '@shared/models';
-import { ChannelModel, Formats, PollType } from '../models';
+import { Codecs, SettingsModel, Types, VideoFormats } from '@shared/models';
+import { ChannelModel, PollType } from '../models';
 
 export const DefaultChannel: ChannelModel = {
   id: null,
+  groupId: null,
   sortOrder: 0,
   name: null,
   rssUrl: '',
-  format: Formats.MP4,
+  type: Types.VIDEO,
+  codec: Codecs.AUTO,
+  format: VideoFormats.AUTO,
   startFromLast: false,
   downloadShorts: false,
   notifyHA: false,
@@ -20,10 +23,13 @@ export const DefaultChannel: ChannelModel = {
 
 export const ChannelMock: ChannelModel = {
   id: 1,
+  groupId: null,
   sortOrder: 0,
   name: 'Favorite Channel',
   rssUrl: 'https://youtube.com/rss/url/test',
-  format: Formats.MP4,
+  type: Types.VIDEO,
+  codec: Codecs.AUTO,
+  format: VideoFormats.AUTO,
   enabled: true,
   startFromLast: true,
   downloadShorts: false,

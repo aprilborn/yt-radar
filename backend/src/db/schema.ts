@@ -47,7 +47,9 @@ export const channel = sqliteTable("channel", {
   color: text("color"),
   rssUrl: text("rssUrl").notNull(),
 
-  format: text("format").notNull().default("mp4"),
+  type: text("type").notNull(),
+  format: text("format").notNull(),
+  codec: text("codec").notNull(),
 
   enabled: integer("enabled", { mode: "boolean" })
     .notNull()

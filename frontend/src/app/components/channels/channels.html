@@ -296,7 +296,7 @@
 
     <div class="flex justify-between text-sm text-gray-500 mt-4">
       <div>
-        @if (channels().filter(c => c.enabled).length > 0) {
+        @if (isEnabled()) {
           @let nextScanIn = closestCheckIn().totalSeconds > 0 ? closestCheckIn().displayTime : 'checking...';
           <p>
             <small>Next scan in: {{ nextScanIn }}</small>

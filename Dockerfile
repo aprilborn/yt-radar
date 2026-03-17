@@ -23,21 +23,17 @@
   
   
   # ---------- RUNTIME ----------
-  FROM node:22-bookworm-slim
+  FROM node:22-alpine
   
   WORKDIR /app
   
-  # устанавливаем только runtime deps
-  COPY backend/package.json ./
+
+  COPY backend/package*.json ./
   RUN npm install --omit=dev
   
-  # копируем backend build
   COPY --from=backend-build /backend/dist ./dist
-  
-  # копируем frontend build
   COPY --from=frontend-build /frontend/dist ./public
   
-  # создаём volume
   RUN mkdir -p /data/images
   
   ENV NODE_ENV=production
@@ -53,3 +49,5 @@
   CMD node -e "require('http').get('http://localhost:8000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
   
   CMD ["node", "dist/server.js"]
+
+  LABEL org.opencontainers.image.source="https://github.com/aprilborn/yt-radar"

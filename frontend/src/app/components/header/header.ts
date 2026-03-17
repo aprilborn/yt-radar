@@ -2,13 +2,12 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { MatButton, MatMiniFabButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { MatTooltip } from '@angular/material/tooltip';
 import { SettingsDialog } from '@shared/components';
 import { HttpService, SnackbarService, SnackbarType, StorageService } from '@shared/services';
 
 @Component({
   selector: 'yt-header',
-  imports: [MatIcon, MatTooltip, MatButton, MatMiniFabButton],
+  imports: [MatIcon, MatButton, MatMiniFabButton],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })

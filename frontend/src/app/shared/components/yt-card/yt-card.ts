@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, input, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, input, OnInit, signal, viewChild } from '@angular/core';
 
 @Component({
   selector: 'yt-card',
@@ -16,12 +16,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, input, viewChild } from
         class="yt-card-content relative {{ customClass() }}"
         (click)="openUrl()"
       >
-        <img
-          [src]="imageUrl()"
-          alt="Source image"
-          class="h-[inherit]! object-contain!"
-          onerror="this.src = 'https://mockimage.tw/photo/310x235/1f1f1f/ff8800/Video%20Thumbnail'"
-        />
+        <img [src]="imageUrl()" alt="Source image" class="h-[inherit]! object-contain!" (error)="handleImageError()" />
 
         <div class="shine-line" [style.left.px]="shineX" [style.top.px]="shineY" [class.visible]="isShineVisible"></div>
       </div>
@@ -30,17 +25,30 @@ import { ChangeDetectionStrategy, Component, ElementRef, input, viewChild } from
   styleUrl: './yt-card.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class YtCard {
-  imageUrl = input.required<string>();
+export class YtCard implements OnInit {
+  imageSourceUrl = input.required<string>();
   url = input.required<string>();
+  imgSize = input<string>('250x250');
+  mockMessage = input<string>('Image%20not%20found');
   customClass = input<string>('rounded-md overflow-hidden h-[inherit]');
   card = viewChild<ElementRef<HTMLDivElement>>('ytCard');
+
+  imageUrl = signal<string>('');
 
   rotateY = 0;
   rotateX = 0;
   shineX = 0;
   shineY = 0;
   isShineVisible = false;
+
+  ngOnInit(): void {
+    this.imageUrl.set(this.imageSourceUrl());
+  }
+
+  handleImageError() {
+    // const message = this.imageUrl().includes('channel') ? 'Channel%20Avatar' : 'Video%20Thumbnail';
+    this.imageUrl.set(`https://mockimage.tw/photo/${this.imgSize()}/1f1f1f/ff8800/${this.mockMessage()}`);
+  }
 
   move({ clientX, clientY }: MouseEvent) {
     const rotateRange = 15;

@@ -1,7 +1,3 @@
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -9,4 +5,17 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+::ng-deep .mat-pseudo-checkbox {
+  order: 3;
+  margin-left: auto !important;
+}
+
+::ng-deep .mdc-list-item__primary-text {
+  margin-right: 0 !important;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }

@@ -37,12 +37,7 @@
       <mat-icon class="text-base" fontIcon="settings" />
     </button>
 
-    <button
-      mat-flat-button
-      (click)="togglePause()"
-      class="min-w-30!"
-      [disabled]="!isConnected()"
-    >
+    <button mat-flat-button (click)="togglePause()" class="min-w-30!" [disabled]="!isConnected()">
       <mat-icon class="text-base">{{ isEnabled() ? 'pause' : 'play_arrow' }}</mat-icon>
       {{ isEnabled() ? 'Pause' : 'Resume' }}
     </button>

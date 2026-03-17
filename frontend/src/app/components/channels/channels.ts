@@ -86,7 +86,7 @@ export class Channels implements OnInit {
   readonly pollType: typeof PollType = PollType;
   readonly channels = this._storage.channels;
   readonly settings = this._storage.settings;
-  readonly isEnabled = computed(() => this.channels().filter(c => c.enabled).length > 0 && this.settings().enabled);
+  readonly isEnabled = computed(() => this.channels().filter((c) => c.enabled).length > 0 && this.settings().enabled);
   showShine = signal(false);
   showFlip = signal(false);
   now = signal(Date.now());

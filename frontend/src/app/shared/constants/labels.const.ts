@@ -1,4 +1,4 @@
-import { AudioFormats, Codecs, VideoFormats } from "@shared/models";
+import { AudioFormats, Codecs, VideoFormats } from '@shared/models';
 
 export const CodecLabels: Record<Codecs, string> = {
   [Codecs.AUTO]: 'Auto',

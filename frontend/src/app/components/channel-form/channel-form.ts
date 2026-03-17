@@ -1,5 +1,16 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
@@ -111,7 +122,7 @@ export class ChannelForm implements OnInit {
       }),
       type: this._fb.control(Types.VIDEO, { nonNullable: true, validators: Validators.required }),
       format: this._fb.control(this.videoFormats.AUTO, { nonNullable: true, validators: Validators.required }),
-      codec: this._fb.control(this.codecs.AUTO, { nonNullable: true, validators: Validators.required }),
+      codec: this._fb.control(this.codecs.AUTO),
       startFromLast: this._fb.control(true, { nonNullable: true, validators: Validators.required }),
       downloadShorts: this._fb.control(false, {
         nonNullable: true,
@@ -132,12 +143,15 @@ export class ChannelForm implements OnInit {
       pollTime: this._fb.control(null),
     });
 
-    this.formatOptions$ = this.form.controls.type.valueChanges
-      .pipe(
-        startWith(this.form.controls.type.value),
-        map(() => this.form.controls.type.value === Types.VIDEO ? Object.values(this.videoFormats) : Object.values(this.audioFormats)),
-        takeUntilDestroyed(this._destroyRef),
-      );
+    this.formatOptions$ = this.form.controls.type.valueChanges.pipe(
+      startWith(this.form.controls.type.value),
+      map(() =>
+        this.form.controls.type.value === Types.VIDEO
+          ? Object.values(this.videoFormats)
+          : Object.values(this.audioFormats),
+      ),
+      takeUntilDestroyed(this._destroyRef),
+    );
   }
 
   ngOnInit() {
@@ -213,7 +227,7 @@ export class ChannelForm implements OnInit {
         this.form.controls.webhookOverride[shouldNotify ? 'enable' : 'disable']();
         this.form.controls.webhookOverride[shouldValidate && shouldNotify ? 'addValidators' : 'removeValidators']([
           Validators.required,
-          YtValidators.url
+          YtValidators.url,
         ]);
         this.form.controls.webhookOverride.updateValueAndValidity();
       });
@@ -264,19 +278,19 @@ export class ChannelForm implements OnInit {
       this.form.reset(DefaultChannel);
     }
   }
+
   private _trackType() {
     this.form.controls.type.valueChanges
-    .pipe(
-      takeUntilDestroyed(this._destroyRef),
-      tap((type) => {
-        if (type === Types.AUDIO) {
-          this.form.controls.codec.reset();
-          this.form.controls.codec.disable();
-        }
-        else this.form.controls.codec.enable();
-      })
-    )
-    .subscribe();
+      .pipe(
+        takeUntilDestroyed(this._destroyRef),
+        tap((type) => {
+          console.log(type);
+          if (type === Types.AUDIO) {
+            this.form.controls.codec.reset(null);
+          } else this.form.controls.codec.enable();
+        }),
+      )
+      .subscribe();
   }
 
   private _updateChannels(channel: ChannelModel) {

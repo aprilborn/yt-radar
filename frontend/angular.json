@@ -45,8 +45,7 @@
                   "maximumWarning": "4kB",
                   "maximumError": "8kB"
                 }
-              ],
-              "serviceWorker": "ngsw-config.json"
+              ]
             },
             "development": {
               "optimization": false,

@@ -1,36 +1,77 @@
-# Youtube RSS tracker
+# YT Radar
 
-A modern, self-hostable web application for tracking videos from YouTube channels (RSS) with full TrueNAS SCALE compatibility.
+⚠️ Early testing — things may break. Don't trust it with anything important (yet).
+
+---
+
+**Automatically track YouTube channels and send new videos to MeTube.**
+
+No subscriptions. No ads. No limitations.
 
 ![Screenshot 1](demo/mockup.png)
 
+## What is this?
+
+YT Radar watches YouTube channels via RSS and automatically sends new videos to your MeTube instance.
+
+Perfect if you:
+- Run a home server
+- Archive YouTube content
+- Have [MeTube](https://github.com/alexta69/metube) running
+- Want automation instead of manual downloads
+
 ## Features
 
-- ✅ **Add YouTube channels** using Channel or RSS URL
-- ✅ **Configure global and per-channel settings** (enable state, codec, format, poll schedule, shorts downloads, folder etc.).
-- ✅ **Visual dashboard:** Easily see the current status, recent downloads, and channels being tracked.
-- ✅ **Flexible polling:** Download new videos on a set interval or at a specific time of day.
-- ✅ **Integrate with automation:** Sends notifications to Home Assistant via webhook after downloads.
-- ✅ **MeTube support:** Integrates with [MeTube](https://github.com/alexta69/metube) for downloads.
-- ✅ **API:** Create sensors/cards/automations using YT-Radar API (Last video, Next check, Health).
+- 📡 Track channels via RSS
+- ⏱ Flexible polling (interval or specific time)
+- 🎬 Auto-download via MeTube
+- 🎯 Per-channel settings (type, format, codec, shorts, folder, etc.)
+- 🧠 Smart tracking (remembers last video)
+- 🔔 Webhooks (Home Assistant support)
+- 📊 Informative dashboard (status, activity, channels)
+
+## How it works
+
+1. Set your MeTube instance
+2. Click <button>+ Add Channel</button>
+3. Add a YouTube channel or RSS URL
+4. Choose polling mode
+5. Save
+
+That's it.
+
+## Screenshots
+
+![Screenshot 1](demo/1.png)
+![Screenshot 1](demo/2.png)
 
 ## Requirements
 
-- **TrueNAS SCALE** or any system with Docker.
+- Any system with Docker.
 - [MeTube](https://github.com/alexta69/metube) instance running and accessible from this app.
 
-## Quick Start
+## Quick start (Docker)
+
+```bash
+docker run -d \
+  -p 31080:8000 \
+  -v /your-directory/data:/data \
+  -e DATA_DIR=/data \
+  ghcr.io/aprilborn/yt-radar:0.0.2
+```
+
+## Setup for TrueNAS SCALE
 <i>TrueNAS Scale - Custom App installation recommendations</i>
 
 ```yaml
 Application Name:
-  application Name: YT-Radar
+  application Name: yt-radar
 
 Image Configuration:
   image:
     repository:
       image: ghcr.io/aprilborn/yt-radar
-      tag: testing
+      tag: 0.0.2
       pull policy: Pull the image if it's not present on the host.
 
 Container Configuration:
@@ -59,57 +100,31 @@ Resources Configuration:
     Memory* (in MB)*: 256
 ```
 
-- Open the web UI at [http://truenas-ip:31080](http://truenas-ip:31080).
+- Open the web UI at [http://truenas-ip:31080](http://truenas-ip:31080) (*port you selected for "host port"*).
 
-## Setup for TrueNAS SCALE
-
-1. Deploy [MeTube](https://github.com/alexta69/metube) as a separate Docker service using TrueNAS SCALE's Apps UI.
-2. Deploy this project using the above instructions.
-3. Set the MeTube URL in the app (use the internal network address if co-located).
-
-## Usage
-
-- **Add a Channel:** Click "Add Channel," paste a YouTube channel/playlist URL or RSS URL, and configure the download settings.
-- **Configure Polling:** Choose "Interval" (every X minutes) or "Time" (once a day at a specific time).
-- **Webhooks:** Enable notification to Home Assistant by toggling the Webhook option and providing a webhook URL.
-- **Tags/Folders:** Organize channels using tags.
-- **Download Shorts:** Toggle to include or exclude YouTube Shorts per channel.
-- **Advanced:** Set a custom name prefix, tag, or per-channel webhook if needed.
-
-## Settings
-
-- **MeTube URL:** Set the URL of your running MeTube instance.
-- **Global Webhook:** Home Assistant or other webhooks for notification (can override per-channel).
+---
 
 ## Developer Quick Start
 
 ```bash
 # Install dependencies
-cd frontend && npm install
+cd frontend && pnpm install
 cd ../backend && npm install
 
 # Run in development mode
 cd ../frontend && pnpm start
 # In another terminal:
-cd ../backend && npm run dev
+cd ../backend && npm run build && npm run dev
 ```
-
-## Screenshots
-
-<!-- Add screenshots/gifs of the UI here if available -->
-![Screenshot 1](demo/1.png)
-![Screenshot 1](demo/2.png)
-![Screenshot 1](demo/3.png)
 
 ## Roadmap
 
 - [ ] Channel Order
 - [ ] Channel Groups
+- [ ] Set manually channel avatar & description
 - [ ] Download history & statistics
 - [ ] More notification integrations
 
 ---
-
-**Made for TrueNAS SCALE. Powered with Angular, Fastify, Drizzle ORM, and SQLite.**
 
 > Looking for a feature or found a bug? Open an issue or PR!

@@ -136,13 +136,12 @@
                   <div class="flex flex-col col-span-4">
                     <div class="flex flex-col gap-5 px-4">
                       <figure class="flex flex-col items-start gap-5">
-                        <div class="max-w-45">
-                          <yt-card
-                            [imageUrl]="ch.channelAvatarPath"
-                            [url]="'https://www.youtube.com/channel/' + ch.channelId"
-                            customClass="max-w-45 rounded-full overflow-hidden"
-                          />
-                        </div>
+                        <yt-card
+                          [imageSourceUrl]="ch.channelAvatarPath"
+                          [url]="'https://www.youtube.com/channel/' + ch.channelId"
+                          customClass="w-[200px] rounded-full overflow-hidden"
+                          mockMessage="Channel%20Avatar"
+                        />
 
                         <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
                           <span class="text-4xl font-bold">{{ ch.name }}</span>
@@ -160,7 +159,9 @@
                       <span>Status:</span>
                       <p class="flex items-center">
                         <span
-                          [class]="'inline-block h-2 w-2 mr-2 rounded-full ' + (ch.enabled ? 'bg-green-400' : 'bg-red-400')"
+                          [class]="
+                            'inline-block h-2 w-2 mr-2 rounded-full ' + (ch.enabled ? 'bg-green-400' : 'bg-red-400')
+                          "
                         ></span>
                         <span>{{ ch.enabled ? 'Enabled' : 'Disabled' }}</span>
                       </p>
@@ -186,26 +187,32 @@
                     <div class="grid grid-cols-2 gap-10 py-4 items-center border-b border-gray-700 font-drop-shade">
                       @let isVideo = ch.type === types.VIDEO;
 
-                      <div class="flex flex-wrap items-center justify-around gap-2 font-bold col-span-2">
-                        <div class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-[32px] bg-[#008000]">
-                          <mat-icon>{{ch.type}}_file</mat-icon>
+                      <div class="flex flex-wrap items-center justify-center gap-4 font-bold col-span-2">
+                        <div
+                          class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-[32px] bg-[#008000]"
+                          matTooltip="Type"
+                        >
+                          <mat-icon>{{ ch.type }}_file</mat-icon>
                           {{ ch.type | titlecase }}
                         </div>
 
-                        <div class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-[32px] bg-[#0000ff]">
-                          <!-- <mat-icon fontIcon="crop_5_4"/> -->
-                           <!-- <div class="border-2 rounded-md px-2 py-0.5 drop-shade-outline"> -->
-                             {{ isVideo ? videoFormatLabels[ch.format] : audioFormatLabels[ch.format] }}
-                           <!-- </div> -->
+                        <div
+                          class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-[32px] bg-[#0000ff]"
+                          matTooltip="Format"
+                        >
+                          {{ isVideo ? videoFormatLabels[ch.format] : audioFormatLabels[ch.format] }}
                         </div>
 
                         @if (ch.codec) {
-                          <div class="border-gray-800 flex items-center gap-4 px-4 py-1 text-xs rounded-full h-[32px] bg-[#ffa600ad] whitespace-nowrap">
+                          <div
+                            class="border-gray-800 flex items-center gap-4 px-4 py-1 text-xs rounded-full h-[32px] bg-[#ffa600ad] whitespace-nowrap"
+                            matTooltip="Codec"
+                          >
                             {{ codecLabels[ch.codec] }}
                             @if (ch.codec === 'h264') {
-                              <mat-icon svgIcon="avc"/>
+                              <mat-icon svgIcon="avc" />
                             } @else if (ch.codec === 'h265') {
-                              <mat-icon fontIcon="hevc"/>
+                              <mat-icon fontIcon="hevc" />
                             }
                           </div>
                         }
@@ -267,7 +274,12 @@
                   <div class="flex flex-col col-span-4">
                     <div class="flex flex-col gap-5 px-4">
                       <figure class="flex flex-col gap-5 items-center">
-                        <yt-card [imageUrl]="ch.lastVideoThumbnailPath" [url]="'https://youtu.be/' + ch.lastVideoId" />
+                        <yt-card
+                          [imageSourceUrl]="ch.lastVideoThumbnailPath"
+                          [url]="'https://youtu.be/' + ch.lastVideoId"
+                          imgSize="310x235"
+                          mockMessage="Video%20Thumbnail"
+                        />
 
                         <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
                           <strong class="text-center">{{ ch.lastVideoTitle ?? 'No video found' }}</strong>

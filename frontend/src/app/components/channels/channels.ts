@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, Signal, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -22,12 +22,13 @@ import {
 import { MatTooltip } from '@angular/material/tooltip';
 import { ConfirmationDialog } from '@shared/components';
 import { filterDefined } from '@shared/helpers';
-import { ChannelModel, PollType } from '@shared/models';
+import { ChannelModel, PollType, Types } from '@shared/models';
 import { HttpService, SnackbarService, SnackbarType, StorageService } from '@shared/services';
 import { delay, filter, Observable, repeat, switchMap, take, tap } from 'rxjs';
 import { YtCard } from 'src/app/shared/components/yt-card/yt-card';
 import { DayPipe } from '../../shared/pipes/day.pipe';
 import { NoData } from '../no-data/no-data';
+import { AudioFormatLabels, CodecLabels, VideoFormatLabels } from 'src/app/shared/constants/labels.const';
 
 @Component({
   selector: 'yt-channels',
@@ -56,6 +57,7 @@ import { NoData } from '../no-data/no-data';
     NoData,
     YtCard,
     DayPipe,
+    TitleCasePipe,
   ],
   templateUrl: './channels.html',
   styleUrl: './channels.css',
@@ -77,10 +79,14 @@ export class Channels implements OnInit {
     'expand',
   ];
   expandedChannel = signal<number | null>(null);
-  pollType: typeof PollType = PollType;
-  channels = this._storage.channels;
-  settings = this._storage.settings;
-  isEnabled = computed(() => this.channels().filter(c => c.enabled).length > 0 && this.settings().enabled);
+  readonly types = Types;
+  readonly codecLabels = CodecLabels;
+  readonly videoFormatLabels = VideoFormatLabels;
+  readonly audioFormatLabels = AudioFormatLabels;
+  readonly pollType: typeof PollType = PollType;
+  readonly channels = this._storage.channels;
+  readonly settings = this._storage.settings;
+  readonly isEnabled = computed(() => this.channels().filter(c => c.enabled).length > 0 && this.settings().enabled);
   showShine = signal(false);
   showFlip = signal(false);
   now = signal(Date.now());

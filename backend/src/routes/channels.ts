@@ -122,7 +122,7 @@ export function channelsRoutes(app: FastifyInstance) {
           rssUrl: rssUrl as string,
 
           type: body.type ?? "video",
-          codec: body.codec ?? "auto",
+          codec: body.codec ?? null,
           format: body.format ?? "mp4",
           enabled: body.enabled ?? true,
           startFromLast: body.startFromLast ?? true,

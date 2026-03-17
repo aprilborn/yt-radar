@@ -2,7 +2,7 @@ export async function sendToMeTube(opts: {
   metubeUrl: string;
   videoUrl: string;
   type: string;
-  codec: string;
+  codec: string | null;
   format: string;
   prefix: string;
   tag: string;

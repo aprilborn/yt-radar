@@ -60,7 +60,17 @@
           <mat-label>Codec</mat-label>
           <mat-select formControlName="codec">
             @for (codec of codecOptions; track codec) {
-              <mat-option [value]="codec">{{ codecLabels[codec] }}</mat-option>
+              <mat-option [value]="codec">
+                <span class="flex items-center justify-between gap-2">
+                  {{ codecLabels[codec] }}
+  
+                  @if (codec === 'h264') {
+                    <mat-icon svgIcon="avc"/>
+                  } @else if (codec === 'h265') {
+                    <mat-icon fontIcon="hevc"/>
+                  }
+                </span>
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
@@ -151,16 +161,27 @@
       </div>
 
       <!-- Notify HA -->
-      <div class="md:col-span-4 flex items-center justify-between gap-3 rounded-lg border border-gray-800 px-4 py-3">
+      <div class="md:col-span-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-800 px-4 py-3">
         <div>
-          <div class="text-sm font-medium">Notify HA</div>
+          @let globalWebhook = globalWebhook$ | async;
+          @let localWebhook = form.controls.webhookOverride;
+          @let notifyControl = form.controls.notifyHA;
+
+          <div class="text-sm font-medium">Webhook</div>
+          
           @if (form.get('notifyHA')?.value) {
-            <div class="text-xs">Send webhook</div>
+            <div class="text-xs">Send</div>
           } @else {
             <div class="text-xs">Do not send</div>
           }
         </div>
         <mat-slide-toggle formControlName="notifyHA"></mat-slide-toggle>
+
+        @if (notifyControl.value && !localWebhook.valid && !globalWebhook?.length) {
+          <div class="text-xs text-red-500 col-span-12">
+            Please set a custom or global webhook URL
+          </div>
+        }
       </div>
 
       <!-- Advanced (collapsible) -->
@@ -195,6 +216,7 @@
 
               <!-- Custom webhook -->
               @let isDisabled = form.controls.webhookOverride.disabled;
+              @let isValid = form.controls.webhookOverride.valid && form.controls.webhookOverride.value;
               <mat-form-field
                 appearance="outline"
                 subscriptSizing="dynamic"
@@ -208,6 +230,15 @@
                   formControlName="webhookOverride"
                   placeholder="Leave empty to use global"
                   [class.cursor-not-allowed]="isDisabled"
+                />
+                <mat-icon
+                  matSuffix
+                  fontIcon="webhook"
+                  matTooltip="Send now to test"
+                  class="relative z-10"
+                  [class.cursor-pointer]="isValid"
+                  [class.opacity-50]="!isValid"
+                  (click)="isValid && sendWebhook()"
                 />
               </mat-form-field>
             </div>

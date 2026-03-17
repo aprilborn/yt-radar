@@ -38,7 +38,7 @@ export function initSchema() {
       rssUrl TEXT NOT NULL,
       type TEXT NOT NULL,
       format TEXT NOT NULL,
-      codec TEXT NOT NULL,
+      codec TEXT,
       enabled INTEGER NOT NULL DEFAULT 1,
       startFromLast INTEGER NOT NULL DEFAULT 1,
       downloadShorts INTEGER NOT NULL DEFAULT 0,

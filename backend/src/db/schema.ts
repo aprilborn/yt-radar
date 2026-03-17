@@ -49,7 +49,7 @@ export const channel = sqliteTable("channel", {
 
   type: text("type").notNull(),
   format: text("format").notNull(),
-  codec: text("codec").notNull(),
+  codec: text("codec"),
 
   enabled: integer("enabled", { mode: "boolean" })
     .notNull()

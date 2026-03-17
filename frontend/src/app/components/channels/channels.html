@@ -90,10 +90,6 @@
                 <mat-icon>edit</mat-icon>
               </button>
 
-              <!-- <button mat-icon-button (click)="resetLastSeen(ch)" matTooltip="Reset last seen">
-                <mat-icon>restart_alt</mat-icon>
-              </button> -->
-
               <button
                 mat-icon-button
                 (click)="runOnce(ch.id); $event.stopPropagation()"
@@ -150,7 +146,6 @@
 
                         <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
                           <span class="text-4xl font-bold">{{ ch.name }}</span>
-                          <!-- <span class="text-sm text-gray-500">{{ch.rssUrl}}</span> -->
                           <span class="text-sm text-gray-500 max-h-80 overflow-y-auto">{{
                             ch.channelDescription ?? '—'
                           }}</span>
@@ -165,25 +160,55 @@
                       <span>Status:</span>
                       <p class="flex items-center">
                         <span
-                          [class]="
-                            'inline-block h-2 w-2 mr-2 rounded-full ' + (ch.enabled ? 'bg-green-400' : 'bg-red-400')
-                          "
+                          [class]="'inline-block h-2 w-2 mr-2 rounded-full ' + (ch.enabled ? 'bg-green-400' : 'bg-red-400')"
                         ></span>
                         <span>{{ ch.enabled ? 'Enabled' : 'Disabled' }}</span>
                       </p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-10 py-4 items-center border-b border-gray-700">
-                      <span>Format:</span>
+                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+                      @let isWebhookEnabled = ch.notifyHA;
+                      @let isCustom = ch.webhookOverride?.length;
+                      @let haWebhook = ch.webhookOverride ?? settings().webhookUrl;
 
-                      <div>
-                        <div
-                          class="border-gray-800 inline-block px-2 py-1 text-xs rounded-full"
-                          [class.bg-[#0000ff]]="ch.format === 'mp4'"
-                          [class.bg-[#ffa600ad]]="ch.format === 'mp3'"
-                        >
-                          {{ ch.format }}
+                      <span>Webhook:</span>
+                      <span class="whitespace-nowrap overflow-hidden text-ellipsis" [matTooltip]="haWebhook">
+                        <span
+                          [class]="
+                            'inline-block h-2 w-2 mr-2 rounded-full ' +
+                            (isWebhookEnabled ? 'bg-green-400' : 'bg-red-400')
+                          "
+                        ></span>
+                        {{ isWebhookEnabled ? 'Enabled' : 'Disabled' }} {{ isCustom ? ' (Custom)' : '' }}
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 py-4 items-center border-b border-gray-700 font-drop-shade">
+                      @let isVideo = ch.type === types.VIDEO;
+
+                      <div class="flex flex-wrap items-center justify-around gap-2 font-bold col-span-2">
+                        <div class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-[32px] bg-[#008000]">
+                          <mat-icon>{{ch.type}}_file</mat-icon>
+                          {{ ch.type | titlecase }}
                         </div>
+
+                        <div class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-[32px] bg-[#0000ff]">
+                          <!-- <mat-icon fontIcon="crop_5_4"/> -->
+                           <!-- <div class="border-2 rounded-md px-2 py-0.5 drop-shade-outline"> -->
+                             {{ isVideo ? videoFormatLabels[ch.format] : audioFormatLabels[ch.format] }}
+                           <!-- </div> -->
+                        </div>
+
+                        @if (ch.codec) {
+                          <div class="border-gray-800 flex items-center gap-4 px-4 py-1 text-xs rounded-full h-[32px] bg-[#ffa600ad] whitespace-nowrap">
+                            {{ codecLabels[ch.codec] }}
+                            @if (ch.codec === 'h264') {
+                              <mat-icon svgIcon="avc"/>
+                            } @else if (ch.codec === 'h265') {
+                              <mat-icon fontIcon="hevc"/>
+                            }
+                          </div>
+                        }
                       </div>
                     </div>
 
@@ -200,23 +225,6 @@
                       } @else {
                         <span>{{ ch.pollTime | date: 'HH:mm' }}</span>
                       }
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
-                      @let isWebhookEnabled = ch.notifyHA;
-                      @let isCustom = ch.webhookOverride?.length;
-                      @let haWebhook = ch.webhookOverride ?? settings().webhookUrl;
-
-                      <span>Notify HA:</span>
-                      <span class="whitespace-nowrap overflow-hidden text-ellipsis" [matTooltip]="haWebhook">
-                        <span
-                          [class]="
-                            'inline-block h-2 w-2 mr-2 rounded-full ' +
-                            (isWebhookEnabled ? 'bg-green-400' : 'bg-red-400')
-                          "
-                        ></span>
-                        {{ isWebhookEnabled ? 'Enabled' : 'Disabled' }} {{ isCustom ? ' (Custom)' : '' }}
-                      </span>
                     </div>
 
                     <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">

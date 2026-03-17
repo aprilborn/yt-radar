@@ -31,7 +31,7 @@ import { equalJson } from '@shared/helpers';
 import { AudioFormats, ChannelFormModel, ChannelModel, Codecs, PollType, Types, VideoFormats } from '@shared/models';
 import { HttpService, SnackbarService, SnackbarType, StorageService } from '@shared/services';
 import { YtValidators } from '@shared/validators';
-import { combineLatest, map, Observable, startWith, tap } from 'rxjs';
+import { catchError, combineLatest, map, Observable, of, startWith, tap } from 'rxjs';
 import { AudioFormatLabels, CodecLabels, VideoFormatLabels } from 'src/app/shared/constants/labels.const';
 
 @Component({
@@ -81,7 +81,7 @@ export class ChannelForm implements OnInit {
   private readonly _snackBar = inject(SnackbarService);
 
   protected readonly defaultChannel = DefaultChannel;
-  private readonly _globalWebhook$ = toObservable(this._storage.settings).pipe(map((settings) => settings.webhookUrl));
+  readonly globalWebhook$ = toObservable(this._storage.settings).pipe(map((settings) => settings.webhookUrl));
 
   isSaving = signal(false);
   isEditing = computed(() => !!this._storage.editingChannel());
@@ -92,11 +92,11 @@ export class ChannelForm implements OnInit {
   );
   codecs = Codecs;
   types = Types;
-  videoFormats = VideoFormats;
-  audioFormats = AudioFormats;
-  videoFormatLabels = VideoFormatLabels;
-  audioFormatLabels = AudioFormatLabels;
-  codecLabels = CodecLabels;
+  readonly videoFormats = VideoFormats;
+  readonly audioFormats = AudioFormats;
+  readonly videoFormatLabels = VideoFormatLabels;
+  readonly audioFormatLabels = AudioFormatLabels;
+  readonly codecLabels = CodecLabels;
 
   formatOptions$: Observable<VideoFormats[] | AudioFormats[]>;
   codecOptions = Object.values(this.codecs);
@@ -183,12 +183,30 @@ export class ChannelForm implements OnInit {
     this._snackBar.open('Copied to clipboard', null, SnackbarType.SUCCESS, 2000);
   }
 
+  sendWebhook() {
+    if (!this.form.value.webhookOverride?.length) return;
+    this._httpService
+      .sendWebhook(this.form.value.webhookOverride)
+      .pipe(
+        tap((response) => {
+          const message = response.ok ? 'Webhook sent successfully.' : 'Failed to send webhook.';
+          const type = response.ok ? SnackbarType.SUCCESS : SnackbarType.ERROR;
+          this._snackBar.open(message, null, type);
+        }),
+        catchError(() => {
+          this._snackBar.open('Failed to send webhook.', null, SnackbarType.ERROR);
+          return of({ ok: false });
+        }),
+      )
+      .subscribe();
+  }
+
   /**
    * Control "required" validator for webhookOverride control\
    * Add/Remove validator if global webhook was added/deleted while editing/adding a channel
    */
   private _trackWebhook() {
-    combineLatest([this.form.controls.notifyHA.valueChanges, this._globalWebhook$])
+    combineLatest([this.form.controls.notifyHA.valueChanges, this.globalWebhook$])
       .pipe(
         takeUntilDestroyed(this._destroyRef),
         map(([_, globalWebhook]): boolean[] => [_, !globalWebhook?.length]),
@@ -197,6 +215,7 @@ export class ChannelForm implements OnInit {
         this.form.controls.webhookOverride[shouldNotify ? 'enable' : 'disable']();
         this.form.controls.webhookOverride[shouldValidate && shouldNotify ? 'addValidators' : 'removeValidators']([
           Validators.required,
+          YtValidators.url
         ]);
         this.form.controls.webhookOverride.updateValueAndValidity();
       });

@@ -2,8 +2,8 @@ import { AudioFormats, Codecs, VideoFormats } from "@shared/models";
 
 export const CodecLabels: Record<Codecs, string> = {
   [Codecs.AUTO]: 'Auto',
-  [Codecs.H264]: 'H.264 (AVC)',
-  [Codecs.H265]: 'H.265 (HEVC)',
+  [Codecs.H264]: 'H.264',
+  [Codecs.H265]: 'H.265',
   [Codecs.AV1]: 'AV1',
   [Codecs.VP9]: 'VP9',
 };

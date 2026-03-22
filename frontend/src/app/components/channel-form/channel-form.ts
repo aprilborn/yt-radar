@@ -284,10 +284,8 @@ export class ChannelForm implements OnInit {
       .pipe(
         takeUntilDestroyed(this._destroyRef),
         tap((type) => {
-          console.log(type);
-          if (type === Types.AUDIO) {
-            this.form.controls.codec.reset(null);
-          } else this.form.controls.codec.enable();
+          if (type === Types.AUDIO) this.form.controls.codec.reset(null);
+          else this.form.controls.codec.enable();
         }),
       )
       .subscribe();

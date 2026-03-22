@@ -319,10 +319,11 @@
         @if (isEnabled()) {
           @let nextScanIn = closestCheckIn().totalSeconds > 0 ? closestCheckIn().displayTime : 'checking...';
           <p>
-            <small>Next scan in: {{ nextScanIn }}</small>
+            <small>Next check in: {{ nextScanIn }}</small>
           </p>
+
           <p>
-            <small>Next scan for: {{ closestCheckIn().channel }} </small>
+            <small>Next check for: {{ closestCheckIn().channel }} </small>
           </p>
         }
       </div>

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MAT_SNACK_BAR_DATA, MatSnackBarRef } from '@angular/material/snack-bar';
 import { SnackbarType } from '@shared/services';
-import { MatIcon } from "@angular/material/icon";
+import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
@@ -12,11 +12,11 @@ import { MatTooltip } from '@angular/material/tooltip';
     <h2 mat-dialog-title>Webhook payload example:</h2>
     <div class="text-left font-mono bg-blue-100/10 p-4 rounded-md my-4 relative">
       <mat-icon
-        fontIcon="content_copy" 
-        class="cursor-pointer absolute top-2 right-2 text-sm! w-4! h-4!" 
-        (click)="copyToClipboard()" 
+        fontIcon="content_copy"
+        class="cursor-pointer absolute top-2 right-2 text-sm! w-4! h-4!"
+        (click)="copyToClipboard()"
         matTooltip="Copy to clipboard"
-       />
+      />
 
       <code>
         <pre>{{ '{' }}

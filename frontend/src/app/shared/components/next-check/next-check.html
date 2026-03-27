@@ -1,0 +1,12 @@
+@if (settings().enabled && timer$ && activeChannels().length) {
+  @let data = timer$ | async;
+  <div>
+    <p>
+      <small>Next check in: {{ !!data ? data?.displayTime : 'updating...' }}</small>
+    </p>
+
+    <p>
+      <small>Next check for: {{ nextCheck()?.channel?.name }} </small>
+    </p>
+  </div>
+}

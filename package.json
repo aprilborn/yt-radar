@@ -1,0 +1,21 @@
+{
+  "name": "yt-radar",
+  "description": "YouTube RSS Feed Watcher",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "setup": "pnpm install && cd backend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"pnpm dev:frontend\"",
+    "dev:backend": "cd backend && pnpm run dev",
+    "dev:frontend": "cd frontend && pnpm dev",
+    "build": "concurrently \"pnpm build:backend\" \"pnpm build:frontend\"",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && pnpm build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

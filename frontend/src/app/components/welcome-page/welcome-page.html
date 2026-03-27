@@ -1,0 +1,48 @@
+<div class="flex flex-col items-center lg:justify-center h-screen" (click)="focusInput()">
+  <div class="welcome-title flex flex-col items-center justify-center mt-10 lg:mt-0 mb-10">
+    <div class="flex items-center gap-2">
+      <h1 class="text-4xl font-bold">Welcome to YT-Radar</h1>
+      <mat-icon svgIcon="radar" class="h-[30px]! w-[30px]!" />
+    </div>
+
+    <p class="lg:text-2xl font-thin mb-5">This is a tool that helps you manage your favorite YouTube channels</p>
+  </div>
+
+  <p class="text-2xl text-gray-500 flex items-center gap-2">
+    <span class="opacity-0">.</span>
+    {{ message$ | async }}
+
+    <span class="w-[24px] h-[24px]">
+      @if (metubeControl.pending) {
+        <mat-icon fontIcon="radar" class="animated-loading" />
+      } @else if (!metubeControl.pending && metubeControl.valid && metubeControl.value) {
+        <mat-icon fontIcon="check" class="text-green-500!" />
+      }
+    </span>
+  </p>
+
+  <mat-form-field class="lg:w-[50%] w-full bg-transparent!" appearance="outline" subscriptSizing="fixed">
+    <input
+      #inputURL
+      matInput
+      name="metubeUrl"
+      type="url"
+      [formControl]="metubeControl"
+      [errorStateMatcher]="matcher"
+      ytMetubeValidator
+      [placeholder]="(example$ | async) || ' '"
+      class="w-full h-[45px] text-center text-2xl! font-bold! font-mono! text-white! bg-transparent!"
+    />
+    <!-- <mat-icon matSuffix fontIcon="radar" class="animated-suffix" [class.hidden]="!metubeUrl.pending"/> -->
+
+    @if (metubeControl?.errors?.['required']) {
+      <mat-error class="text-center text-white! text-xs animate-error">Cannot proceed without MeTube URL</mat-error>
+    }
+    @if (metubeControl?.errors?.['invalidUrl']) {
+      <mat-error class="text-center text-white! text-xs animate-error">Must start with http(s)://</mat-error>
+    }
+    @if (metubeControl?.errors?.['invalidMetubeUrl']) {
+      <mat-error class="text-center text-xs animate-error">Can't connect to MeTube</mat-error>
+    }
+  </mat-form-field>
+</div>

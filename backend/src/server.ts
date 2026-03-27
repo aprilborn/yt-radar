@@ -1,0 +1,102 @@
+import "dotenv/config";
+import Fastify from "fastify";
+import cors from "@fastify/cors";
+import staticPlugin from "@fastify/static";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { initSchema } from "./db/init.js";
+import { db } from "./db/index.js";
+import { settings } from "./db/schema.js";
+import { startWorker } from "./services/worker.js";
+import { eq } from "drizzle-orm";
+
+import { healthRoutes } from "./routes/http/public.js";
+import { settingsRoutes } from "./routes/http/settings.js";
+import { channelsRoutes } from "./routes/http/channels.js";
+import { actionsRoutes } from "./routes/http/actions.js";
+import { initWebsockets } from "./routes/ws/websockets.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const PORT = Number(process.env.PORT ?? 8000);
+const HOST = process.env.HOST ?? "0.0.0.0";
+const DATA_DIR = process.env.DATA_DIR ?? "./data";
+const IMAGES_DIR = path.join(DATA_DIR, "images");
+const WEB_ROOT = path.resolve(
+  process.env.WEB_ROOT ?? path.join(__dirname, "../public")
+);
+
+const app = Fastify({ logger: true });
+
+await app.register(cors, { origin: true });
+await app.register(healthRoutes);
+await app.register(settingsRoutes);
+await app.register(channelsRoutes);
+await app.register(actionsRoutes);
+
+initSchema();
+
+// ensure default settings
+const existing = await db
+  .select()
+  .from(settings)
+  .where(eq(settings.id, 1));
+
+if (!existing.length) {
+  await db.insert(settings).values({
+    id: 1,
+    metubeUrl: "",
+    enabled: true
+  });
+}
+
+await app.register(staticPlugin, {
+  root: WEB_ROOT,
+  prefix: "/",
+  wildcard: false,
+  preCompressed: true,
+  maxAge: "1y",
+  immutable: true
+});
+
+await app.register(staticPlugin, {
+  root: path.resolve(IMAGES_DIR),
+  prefix: "/images/",
+  decorateReply: false,
+});
+
+app.setNotFoundHandler((req, reply) => {
+  if (req.raw.url?.startsWith("/api")) {
+    return reply.code(404).send({ error: "Not found" });
+  }
+
+  if (req.raw.url?.includes(".")) {
+    return reply.code(404).send();
+  }
+
+  return reply.sendFile("index.html");
+});
+
+startWorker();
+
+process.on('SIGTERM', async () => {
+  await app.close();
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  await app.close();
+  process.exit(0);
+});
+
+initWebsockets(app.server);
+
+await app.listen({ port: PORT, host: HOST }, err => {
+  if (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+  app.log.info(`Server is running on port ${PORT}`);
+})

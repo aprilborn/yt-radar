@@ -1,0 +1,34 @@
+.yt-card-content {
+  box-shadow: 0 0 1rem 0.5rem rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s linear;
+  transform-style: preserve-3d;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .shine-line {
+    position: absolute;
+    width: 200%;
+    height: 300%;
+    pointer-events: none;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    transform: translate(-50%, -50%) rotate(25deg);
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    filter: blur(12px);
+
+    &.visible {
+      opacity: 0.6;
+    }
+  }
+}

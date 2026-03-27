@@ -1,0 +1,16 @@
+@let channel = channel$ | async;
+
+@if (channel) {
+  <div class="flex justify-cetner flex-col items-center text-center">
+    <div class="w-full h-screen py-2">
+      <yt-card [imageSourceUrl]="channel?.lastVideoThumbnailPath" [url]="'https://youtu.be/' + channel?.lastVideoId" />
+
+      <p class="text-sm truncate px-4 pt-2">
+        <span class="text-base font-semibold truncate">{{ channel?.name }} - </span>
+        <span [matTooltip]="channel?.lastVideoTitle">{{ channel?.lastVideoTitle }}</span>
+      </p>
+    </div>
+  </div>
+} @else {
+  <div class="h-screen flex items-center justify-center text-center text-gray-400">No channel found...</div>
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="2"></circle><g>
+    <circle cx="32" cy="32" r="21" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.9"></circle>
+    <animateTransform attributeName="transform" type="rotate" from="20 32 32" to="380 32 32" dur="7s" repeatCount="indefinite"></animateTransform>
+  </g><g>
+    <path d="M32 4 A28 28 0 0 1 52 52" stroke="#e90c0c" stroke-width="3" opacity="0.7" stroke-linecap="round"></path>
+    <animateTransform attributeName="transform" type="rotate" from="380 32 32" to="20 32 32" dur="10s" repeatCount="indefinite"></animateTransform>
+  </g><polygon points="28,22 44,32 28,42" fill="#e90c0c"></polygon></svg>

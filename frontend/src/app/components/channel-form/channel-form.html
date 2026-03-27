@@ -1,0 +1,267 @@
+<mat-card>
+  <mat-card-header class="mb-5">
+    <mat-card-title>{{ isEditing() ? 'Edit channel' : 'Add channel' }}</mat-card-title>
+    <mat-card-subtitle class="font-thin!"> Track your favorite YouTube Channels. </mat-card-subtitle>
+
+    <mat-icon fontIcon="close" class="absolute top-4 right-4 text-white cursor-pointer" (click)="closeForm()" />
+  </mat-card-header>
+
+  <mat-card-content class="mt-2">
+    <form #formEl [formGroup]="form" (ngSubmit)="save(form.value)" class="grid grid-cols-1 gap-6 md:grid-cols-12">
+      <!-- Name -->
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic">
+        <mat-label>Channel name</mat-label>
+        <input matInput formControlName="name" placeholder="Custom channel name" />
+
+        @if (!isEditing()) {
+          <mat-hint> Leave empty to use real channel name </mat-hint>
+        }
+      </mat-form-field>
+
+      <!-- URL -->
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic">
+        <mat-label>Channel/RSS URL</mat-label>
+        <input
+          matInput
+          formControlName="rssUrl"
+          placeholder="https://www.youtube.com/feeds/videos.xml?channel_id=..."
+        />
+
+        @if (form.get('rssUrl')?.value && isEditing()) {
+          <mat-icon
+            matSuffix
+            fontIcon="link"
+            (click)="copyToClipboard(form.get('rssUrl')?.value)"
+            class="cursor-pointer"
+          />
+        }
+
+        @if (!isEditing()) {
+          <mat-hint class="text-xs/6"> Just paste channel URL and leave the rest to the app 😎 </mat-hint>
+        }
+
+        @if (form.get('rssUrl')?.invalid) {
+          <mat-error>URL is required</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Type -->
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option [value]="types.VIDEO">Video</mat-option>
+          <mat-option [value]="types.AUDIO">Audio</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Codec -->
+      @if (form.controls.type.value === types.VIDEO) {
+        <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
+          <mat-label>Codec</mat-label>
+          <mat-select formControlName="codec">
+            @for (codec of codecOptions; track codec) {
+              <mat-option [value]="codec" class="flex items-center gap-2">
+                <span class="order-1">
+                  {{ codecLabels[codec] }}
+                </span>
+
+                @if (codec === 'h264') {
+                  <mat-icon svgIcon="avc" class="order-2" />
+                } @else if (codec === 'h265') {
+                  <mat-icon fontIcon="hevc" class="order-2" />
+                }
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      <!-- Format -->
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
+        @let isVideoType = form.controls.type.value === types.VIDEO;
+
+        <mat-label>Format</mat-label>
+
+        <mat-select formControlName="format">
+          @for (format of formatOptions$ | async; track format) {
+            @let label = isVideoType ? videoFormatLabels[format] : audioFormatLabels[format];
+            <mat-option [value]="format">
+              {{ label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Poll type -->
+      <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic" hideRequiredMarker>
+        <mat-label>Poll type</mat-label>
+        <mat-select formControlName="pollType">
+          <mat-option value="interval">Interval</mat-option>
+          <mat-option value="time">Time</mat-option>
+        </mat-select>
+        <mat-hint
+          >Interval: check every X minutes. <br />
+          Time: check once a day at a specific time.
+        </mat-hint>
+      </mat-form-field>
+
+      @if (form.controls.pollType.value === 'interval') {
+        <!-- Poll repeat interval -->
+        <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic">
+          <mat-label>Check interval</mat-label>
+          <input matInput type="number" formControlName="pollInterval" placeholder="10+ (recommended)" />
+          <span matSuffix class="mr-4">minutes</span>
+          <mat-hint>Tip: keep polling ≥ 1min unless you love rate-limits and suffering.</mat-hint>
+          @if (form.controls.pollInterval.errors?.['min'] || form.controls.pollInterval.errors?.['max']) {
+            <mat-error>Interval must be between 1 and 1440 minutes</mat-error>
+          }
+        </mat-form-field>
+      } @else {
+        <!-- Poll specific time -->
+        <mat-form-field appearance="outline" class="md:col-span-12" subscriptSizing="dynamic">
+          <mat-label>Pick a time</mat-label>
+          <input matInput [matTimepicker]="picker" formControlName="pollTime" />
+          <mat-timepicker #picker />
+
+          <mat-timepicker-toggle matIconSuffix [for]="picker">
+            <mat-icon matTimepickerToggleIcon>keyboard_arrow_down</mat-icon>
+          </mat-timepicker-toggle>
+        </mat-form-field>
+      }
+
+      <!-- Shorts -->
+      <div class="md:col-span-4 flex items-center justify-between gap-3 rounded-lg border border-gray-800 px-4 py-3">
+        <div>
+          <div class="text-sm font-medium">Shorts</div>
+          @if (form.get('downloadShorts')?.value) {
+            <div class="text-xs">Include</div>
+          } @else {
+            <div class="text-xs">Ignore</div>
+          }
+        </div>
+        <mat-slide-toggle formControlName="downloadShorts" />
+      </div>
+
+      <!-- Notify HA -->
+      <div
+        class="md:col-span-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-800 px-4 py-3"
+      >
+        <div>
+          @let globalWebhook = globalWebhook$ | async;
+          @let localWebhook = form.controls.webhookOverride;
+          @let notifyControl = form.controls.notifyHA;
+
+          <div class="text-sm font-medium">Webhook</div>
+
+          @if (form.get('notifyHA')?.value) {
+            <div class="text-xs">Send</div>
+          } @else {
+            <div class="text-xs">Do not send</div>
+          }
+        </div>
+        <mat-slide-toggle formControlName="notifyHA"></mat-slide-toggle>
+
+        @if (notifyControl.value && !localWebhook.valid && !globalWebhook?.length) {
+          <div class="text-xs text-red-500 col-span-12">Please set a custom or global webhook URL</div>
+        }
+      </div>
+
+      <!-- Download last video now -->
+      @if (!isEditing()) {
+        <div
+          class="md:col-span-4 flex items-center justify-between gap-3 rounded-lg border border-gray-800 px-4 py-3"
+          matTooltip="Turn on to download last video now"
+        >
+          <div>
+            <div class="text-sm font-medium">Start with</div>
+            @if (form.get('startFromLast')?.value) {
+              <div class="text-xs">Last video</div>
+            } @else {
+              <div class="text-xs">Next video</div>
+            }
+          </div>
+          <mat-slide-toggle formControlName="startFromLast" />
+        </div>
+      }
+
+      <!-- Advanced (collapsible) -->
+      <div class="md:col-span-12">
+        <mat-accordion>
+          <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>Advanced</mat-panel-title>
+              <mat-panel-description>Optional overrides per channel</mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+              <!-- Custom Name Prefix -->
+              <mat-form-field appearance="outline" class="md:col-span-6" subscriptSizing="dynamic">
+                <mat-label>Custom Name Prefix</mat-label>
+                <input matInput formControlName="prefix" placeholder="e.g. Channel name" />
+              </mat-form-field>
+
+              <!-- Folder / Tag -->
+              <mat-form-field appearance="outline" class="md:col-span-6" subscriptSizing="dynamic">
+                <mat-label>Folder</mat-label>
+                <input matInput formControlName="tag" placeholder="e.g. podcasts" type="text" [matAutocomplete]="tag" />
+
+                <mat-autocomplete #tag="matAutocomplete">
+                  @for (folder of folders(); track folder) {
+                    <mat-option [value]="folder">
+                      {{ folder }}
+                    </mat-option>
+                  }
+                </mat-autocomplete>
+              </mat-form-field>
+
+              <!-- Custom webhook -->
+              @let isDisabled = form.controls.webhookOverride.disabled;
+              @let isValid = form.controls.webhookOverride.valid && form.controls.webhookOverride.value;
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="md:col-span-12"
+                [class.cursor-not-allowed]="isDisabled"
+                [matTooltip]="form.controls.notifyHA.value ? '' : 'Webhook is disabled'"
+              >
+                <mat-label [class.cursor-not-allowed]="isDisabled">Custom Webhook URL</mat-label>
+                <input
+                  matInput
+                  formControlName="webhookOverride"
+                  placeholder="Leave empty to use global"
+                  [class.cursor-not-allowed]="isDisabled"
+                />
+                <mat-icon
+                  matSuffix
+                  fontIcon="webhook"
+                  matTooltip="Send now to test"
+                  class="relative z-10"
+                  [class.cursor-pointer]="isValid"
+                  [class.opacity-50]="!isValid"
+                  (click)="isValid && sendWebhook()"
+                />
+              </mat-form-field>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+
+      <!-- Actions -->
+      <div class="md:col-span-12 flex flex-wrap items-center justify-end gap-2 pt-2">
+        <button mat-stroked-button type="button" class="border-gray-700" (click)="resetForm()" [disabled]="isSaving()">
+          Reset
+        </button>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || isSaving()">
+          @if (isSaving()) {
+            <mat-icon class="text-base animate-spin" fontIcon="cached" />
+          } @else {
+            <mat-icon class="text-base" [fontIcon]="isEditing() ? 'edit' : 'add'" />
+          }
+
+          {{ isEditing() ? 'Update' : 'Add' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

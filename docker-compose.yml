@@ -1,0 +1,17 @@
+services:
+  yt-radar:
+    build: .
+    container_name: yt-radar
+    image: yt-radar
+    ports:
+      - "8000:8000"
+
+    environment:
+      PORT: 8000
+      HOST: 0.0.0.0
+      DATA_DIR: /data
+
+    volumes:
+      - ./data:/data
+
+    restart: unless-stopped

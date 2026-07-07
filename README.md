@@ -130,7 +130,6 @@ pnpm build
 
 ## Roadmap
 
-- [ ] Refactoring 😄
 - [ ] Improve UI (alternative view, themes, responsiveness)
 - [ ] Channel ordering
 - [ ] Channel groups

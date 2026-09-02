@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to build (e.g. v1.1.0)'
+        description: 'Existing tag to build (e.g. v1.1.1)'
         required: true
 
 env:
@@ -47,9 +47,6 @@ jobs:
       - name: Resolve the tag being published
         run: echo "SRC_TAG=${{ github.event.inputs.tag || github.ref_name }}" >> "$GITHUB_ENV"
 
-      # Turns the tag v1.1.0 into the image tags 1.1.0, 1.1, 1 and latest, and
-      # emits the OCI labels (version, revision, created) that override the
-      # static ones baked into the Dockerfile.
       - name: Derive tags and labels
         id: meta
         uses: docker/metadata-action@v5

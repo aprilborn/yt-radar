@@ -1,0 +1,27 @@
+.details-wrapper {
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 0fr;
+  grid-template-columns: 100%;
+  transition: grid-template-rows 225ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.details-wrapper--expanded {
+  grid-template-rows: 1fr;
+}
+
+.details-content {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.inactive-channel {
+  font-size: 12rem;
+  opacity: 0;
+  transition: opacity 0.3s linear 0.5s;
+}
+
+.inactive-visible {
+  opacity: 0.1;
+}

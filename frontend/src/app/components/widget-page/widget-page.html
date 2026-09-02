@@ -1,16 +1,26 @@
-@let channel = channel$ | async;
+@if (!!channel()) {
+  <div class="flex justify-cetner flex-col items-center">
+    <div class="max-w-screen max-h-screen flex flex-col gap-2 py-2 relative">
+      <img
+        [src]="channel()?.lastVideoThumbnailPath"
+        [alt]="channel()?.lastVideoTitle"
+        class="aspect-video object-cover"
+      />
 
-@if (channel) {
-  <div class="flex justify-cetner flex-col items-center text-center">
-    <div class="w-full h-screen py-2">
-      <yt-card [imageSourceUrl]="channel?.lastVideoThumbnailPath" [url]="'https://youtu.be/' + channel?.lastVideoId" />
+      <div class="flex items-center gap-2 absolute top-4 left-4 bg-black/90 rounded-md px-2 py-1">
+        <div
+          class="rounded-full bg-green-500 w-4 h-4"
+          [class.bg-red-500]="!channel()?.enabled"
+          [matTooltip]="channel()?.enabled ? 'Enabled' : 'Disabled'"
+        ></div>
+        <span class="text-base font-semibold">{{ channel()?.name }}</span>
+      </div>
 
-      <p class="text-sm truncate px-4 pt-2">
-        <span class="text-base font-semibold truncate">{{ channel?.name }} - </span>
-        <span [matTooltip]="channel?.lastVideoTitle">{{ channel?.lastVideoTitle }}</span>
-      </p>
+      <div class="max-w-full px-4 bg-black/70 absolute bottom-0 left-0 right-0 py-2">
+        <p class="text-lg truncate" [matTooltip]="channel()?.lastVideoTitle">{{ channel()?.lastVideoTitle }}</p>
+      </div>
     </div>
   </div>
 } @else {
-  <div class="h-screen flex items-center justify-center text-center text-gray-400">No channel found...</div>
+  <div class="h-screen flex items-center justify-center text-center text-gray-400">No subscription found...</div>
 }

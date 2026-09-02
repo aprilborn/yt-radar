@@ -1,0 +1,191 @@
+<mat-card class="bg-gray-900/60 border border-gray-800 shadow-none relative">
+  <mat-card-header class="flex items-center">
+    <mat-card-title>Subscriptions</mat-card-title>
+
+    @if (subscriptions()?.length) {
+      <button mat-stroked-button class="ml-auto border-transparent! bg-[#0f0f0f]!" (click)="showForm()">
+        <mat-icon class="text-base!">add</mat-icon>
+        Add subscription
+      </button>
+    }
+  </mat-card-header>
+
+  <mat-card-content class="mt-2 relative overflow-hidden" [class.flip-card-animation]="showFlip()">
+    @if (showShine()) {
+      <div class="shine-line shine-line-animation z-2"></div>
+    }
+
+    @if (subscriptions()?.length) {
+      <div class="overflow-x-auto rounded-xl border border-gray-800">
+        <table
+          mat-table
+          [dataSource]="subscriptions()"
+          [trackBy]="trackByFn"
+          multiTemplateDataRows
+          class="w-full bg-transparent"
+        >
+          <!-- Enabled -->
+          <ng-container matColumnDef="enabled">
+            <th mat-header-cell *matHeaderCellDef>Enabled</th>
+            <td mat-cell *matCellDef="let ch">
+              <mat-slide-toggle
+                [ngModel]="ch.enabled"
+                (ngModelChange)="toggleSubscription($event, ch)"
+                class="max-w-65!"
+                (click)="$event.stopPropagation()"
+              />
+            </td>
+          </ng-container>
+
+          <!-- Name -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Channel</th>
+            <td mat-cell *matCellDef="let ch">
+              <div class="font-medium">{{ ch.name }}</div>
+            </td>
+          </ng-container>
+
+          <!-- Last video name -->
+          <ng-container matColumnDef="videoName">
+            <th mat-header-cell *matHeaderCellDef>Last Video</th>
+            <td mat-cell *matCellDef="let ch">
+              <div
+                class="font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-40"
+                [matTooltip]="ch.lastVideoTitle"
+              >
+                {{ ch.lastVideoTitle || '—' }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Last capture -->
+          <ng-container matColumnDef="lastCaptureAt">
+            <th mat-header-cell *matHeaderCellDef class="text-center!">Last capture</th>
+            <td mat-cell *matCellDef="let ch" class="text-center!">
+              @let lastCapture = ch?.lastCaptureAt;
+              @let relativeDate = lastCapture | day: 'MMMM dd';
+              @let isToday = relativeDate === 'Today';
+              @let toPopulate = isToday ? (lastCapture | date: 'HH:mm') : relativeDate;
+
+              <span>{{ !!lastCapture ? toPopulate : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Last checked -->
+          <ng-container matColumnDef="lastCheckedAt">
+            <th mat-header-cell *matHeaderCellDef class="text-center!">Last check</th>
+            <td mat-cell *matCellDef="let ch" class="text-center!">
+              @let checkedAt = ch?.lastCheckedAt;
+              @let relativeDate = checkedAt | day: 'MMMM dd';
+              @let isToday = relativeDate === 'Today';
+              @let toPopulate = isToday ? (checkedAt | date: 'HH:mm') : relativeDate;
+
+              <span>{{ !!checkedAt ? toPopulate : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Next check -->
+          <ng-container matColumnDef="nextCheckAt">
+            <th mat-header-cell *matHeaderCellDef class="text-center!">Next check</th>
+            <td mat-cell *matCellDef="let ch" class="text-center!">
+              @let nextCheck = ch?.nextCheckAt;
+              @let relativeDate = nextCheck | day: 'MMMM dd';
+              @let isToday = relativeDate === 'Today';
+              @let toPopulate = isToday ? (nextCheck | date: 'HH:mm') : relativeDate;
+
+              <span>{{ !!nextCheck && ch.enabled ? toPopulate : '—' }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-center!">Actions</th>
+            <td mat-cell *matCellDef="let ch">
+              <div class="flex items-center justify-center gap-2">
+                <button mat-icon-button (click)="editSubscription(ch); $event.stopPropagation()" matTooltip="Edit">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  (click)="scan(ch.id); $event.stopPropagation()"
+                  [matTooltip]="!settings().enabled ? 'The app is paused' : 'Check now'"
+                  [disabled]="!settings().enabled"
+                >
+                  <mat-icon>track_changes</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  (click)="deleteSubscription(ch.id); $event.stopPropagation()"
+                  matTooltip="Delete"
+                >
+                  <mat-icon class="text-red-400">delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Expand -->
+          <ng-container matColumnDef="expand">
+            <th mat-header-cell *matHeaderCellDef aria-label="row actions">&nbsp;</th>
+            <td mat-cell *matCellDef="let ch" class="w-10">
+              @let isExpanded = expandedSubscription() === ch.id;
+              <button
+                matIconButton
+                aria-label="expand row"
+                (click)="expandedSubscription.set(isExpanded ? null : ch.id); $event.stopPropagation()"
+                class="toggle-button"
+                [class.toggle-button-expanded]="isExpanded"
+              >
+                <mat-icon>keyboard_arrow_down</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <!-- Expanded content -->
+          <ng-container matColumnDef="expandedDetail">
+            <td
+              mat-cell
+              *matCellDef="let ch"
+              [attr.colspan]="displayedColumns.length"
+              [class.app-disabled]="!ch.enabled"
+              class="disabled-effect"
+            >
+              <rt-subscription-details [sub]="ch" [isExpanded]="expandedSubscription() === ch.id" />
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="bg-gray-950/40 whitespace-nowrap"></tr>
+
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="hover:bg-white/3! transition hover:-bg-0.5 cursor-pointer"
+            (click)="expandedSubscription.set(row.id === expandedSubscription() ? null : row.id)"
+            cdkDrag
+          ></tr>
+
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="subscription-detail-row"></tr>
+        </table>
+      </div>
+    }
+
+    @if (!subscriptions()?.length) {
+      <rt-no-data [message]="'No subscriptions found'" (action)="showForm()" [buttonLabel]="'Add subscription'" />
+    }
+
+    <div class="flex justify-between text-sm text-gray-500 mt-4">
+      <rt-next-check />
+
+      <div class="text-right">
+        <p>
+          <small>Total subscriptions: {{ subscriptions()?.length }} </small>
+        </p>
+        <p>
+          <small>Active subscriptions: {{ subscriptions()?.filter(c => c.enabled).length }} </small>
+        </p>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,13 +1,29 @@
 import { SnackbarType } from '@shared/services';
-import { ChannelModel, NextCheckModel } from './channel.model';
+import { SubscriptionModel, NextCheckModel } from './subscription.model';
+import { DownloadModel } from './download.model';
 
 export interface WsMessage<T> {
   type: string;
   data: T;
 }
 
-export type WebSocketData = NotificationPayload | ChannelPayload;
-export type WebSocketMessageType = 'notification' | 'metube-status' | 'next-check' | 'channel-updated';
+export type WebSocketData =
+  | NotificationPayload
+  | SubscriptionPayload
+  | DownloaderStatusPayload
+  | DownloadModel
+  | DownloadModel[]
+  | DownloadRemovedPayload;
+
+export type WebSocketMessageType =
+  | 'notification'
+  | 'downloader-status'
+  | 'next-check'
+  | 'channel-updated'
+  | 'download-updated'
+  | 'downloads-batch'
+  | 'download-removed'
+  | 'downloads-cleared';
 
 export interface NotificationPayload {
   title?: 'notification';
@@ -16,12 +32,17 @@ export interface NotificationPayload {
   type: SnackbarType;
 }
 
-export interface ChannelPayload {
-  channel: ChannelModel;
+export interface SubscriptionPayload {
+  channel: SubscriptionModel;
 }
 
-export interface MetubeStatusPayload {
+export interface DownloaderStatusPayload {
   status: boolean;
+  detail: string | null;
+}
+
+export interface DownloadRemovedPayload {
+  id: number;
 }
 
 export type NextCheckPayload = NextCheckModel;

@@ -20,7 +20,8 @@
       "@shared/directives": ["src/app/shared/directives"],
       "@shared/helpers": ["src/app/shared/helpers"],
       "@shared/validators": ["src/app/shared/validators"],
-      "@shared/components": ["src/app/shared/components"]
+      "@shared/components": ["src/app/shared/components"],
+      "@shared/pipes": ["src/app/shared/pipes"]
     }
   },
   "angularCompilerOptions": {

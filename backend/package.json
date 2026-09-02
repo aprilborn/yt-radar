@@ -1,5 +1,5 @@
 {
-  "name": "yt-back",
+  "name": "retriever-backend",
   "version": "1.0.0",
   "description": "",
   "main": "src/server.ts",

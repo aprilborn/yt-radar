@@ -1,2 +1,3 @@
-export * from './stripped-bg';
-export * from './metube-validator';
+export * from './bg.directive';
+export * from './ytdlp-validator';
+export * from './appear.directive';

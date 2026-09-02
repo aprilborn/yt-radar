@@ -1,6 +1,9 @@
 import type { Server as HttpServer } from "node:http";
 import { Server as SocketIOServer } from "socket.io";
-import { startMetubeStatusPolling, stopMetubeStatusPolling } from "./metube.js";
+import {
+  startDownloaderStatusPolling,
+  stopDownloaderStatusPolling
+} from "./downloader-status.js";
 
 export interface WsMessage<T = unknown> {
   type: string;
@@ -28,14 +31,14 @@ export function initWebsockets(server: HttpServer) {
     connectedClients += 1;
 
     if (connectedClients === 1) {
-      startMetubeStatusPolling();
+      startDownloaderStatusPolling();
     }
 
     socket.on("disconnect", () => {
       connectedClients = Math.max(connectedClients - 1, 0);
 
       if (connectedClients === 0) {
-        stopMetubeStatusPolling();
+        stopDownloaderStatusPolling();
       }
     });
   });

@@ -126,6 +126,7 @@ export function channelsRoutes(app: FastifyInstance) {
           type: body.type ?? "video",
           codec: body.codec ?? null,
           format: body.format ?? "mp4",
+          ytdlpArgs: body.ytdlpArgs ?? null,
           enabled: body.enabled ?? true,
           startFromLast: body.startFromLast ?? true,
           downloadShorts: body.downloadShorts ?? false,

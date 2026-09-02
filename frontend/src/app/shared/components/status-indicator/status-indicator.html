@@ -1,0 +1,22 @@
+@let isCanceled = download().status === downloadStatus.CANCELED;
+@let isDone = download().status === downloadStatus.DONE;
+@let isActive = download().status === downloadStatus.RUNNING;
+@let isFailed = download().status === downloadStatus.FAILED;
+@let isPathAvailable = !!download().filePath;
+
+<div
+  class="select-none p-2 rounded-full shadow-xl inline-block overflow-visible"
+  [class.cursor-pointer]="isPathAvailable"
+  style="box-shadow: 0 0 10px 0 var(--tw-shadow-color)"
+  [class.bg-red-500]="isFailed"
+  [class.bg-gray-500]="isCanceled"
+  [class.bg-green-500]="isDone"
+  [class.bg-yellow-500]="isActive"
+  [class.shadow-yellow-500!]="isActive"
+  [class.shadow-red-500!]="isFailed"
+  [class.shadow-gray-500!]="isCanceled"
+  [class.shadow-green-500!]="isDone"
+  [matTooltip]="statusLabels[download().status]"
+  matTooltipPosition="above"
+  (click)="isPathAvailable ? copyToClipboard(download().filePath) : null"
+></div>

@@ -1,8 +1,23 @@
-import { Codecs, SettingsModel, Types, VideoFormats } from '@shared/models';
-import { ChannelModel, PollType } from '../models';
+import {
+  BgType,
+  Codecs,
+  DownloadStatus,
+  ManualDownloadModel,
+  PaginatorModel,
+  VideoQuality,
+  SettingsModel,
+  ThemeColors,
+  Types,
+  UiConfig,
+  VideoFormats,
+} from '@shared/models';
+import { SubscriptionModel, PollType } from '../models';
 
-export const DefaultChannel: ChannelModel = {
+export const DefaultSubscription: SubscriptionModel = {
   id: null,
+  channelId: 'UC_x5XG1OV2P6uZZ5FSM9Ttw',
+  channelDescription: 'Test channel',
+  color: '#000000',
   groupId: null,
   sortOrder: 0,
   name: null,
@@ -10,19 +25,23 @@ export const DefaultChannel: ChannelModel = {
   type: Types.VIDEO,
   codec: Codecs.AUTO,
   format: VideoFormats.AUTO,
+  ytdlpArgs: null,
   startFromLast: false,
   downloadShorts: false,
   notifyHA: false,
   webhookOverride: '',
   prefix: '',
   tag: '',
-  pollType: PollType.TIME,
+  pollType: PollType.INTERVAL,
   pollInterval: null,
   pollTime: null,
 };
 
-export const ChannelMock: ChannelModel = {
+export const MockSubscription: SubscriptionModel = {
   id: 1,
+  channelId: 'UC_x5XG1OV2P6uZZ5FSM9Ttw',
+  channelDescription: 'Test channel',
+  color: '#000000',
   groupId: null,
   sortOrder: 0,
   name: 'Favorite Channel',
@@ -30,6 +49,7 @@ export const ChannelMock: ChannelModel = {
   type: Types.VIDEO,
   codec: Codecs.AUTO,
   format: VideoFormats.AUTO,
+  ytdlpArgs: null,
   enabled: true,
   startFromLast: true,
   downloadShorts: false,
@@ -49,15 +69,40 @@ export const ChannelMock: ChannelModel = {
 
 export const DefaultSettings: SettingsModel = {
   enabled: true,
-  metubeUrl: null,
   webhookUrl: null,
+  downloadsDir: '/downloads',
+  cookiesPath: null,
+  ytdlpArgs: null,
+  ytdlpConcurrency: 2,
 };
 
-export const SettingsMock: SettingsModel = {
-  id: 1,
-  enabled: true,
-  metubeUrl: 'http://metube:30094',
-  webhookUrl: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
+export const DefaultUiConfig: UiConfig = {
+  sectionsBg: BgType.GLASS,
+  themeColor: ThemeColors.RED,
+  enableAnimations: true,
+  autoPaste: false,
 };
+
+export const DefaultPaginator: PaginatorModel = {
+  total: 0,
+  /** Zero-based, like MatPaginator's `pageIndex`; the API's 1-based `page` is derived from it. */
+  page: 0,
+  limit: 5,
+};
+
+export const DefaultManualForm: ManualDownloadModel = {
+  url: '',
+  quality: VideoQuality.BEST,
+  type: Types.VIDEO,
+  format: VideoFormats.AUTO,
+  codec: Codecs.AUTO,
+  ytdlpArgs: '',
+  prefix: '',
+  destinationFolder: '',
+  clipStart: '',
+  clipEnd: '',
+  removeSponsor: false,
+  splitChapters: false,
+};
+
+export const DefaultFilters: DownloadStatus[] = [];

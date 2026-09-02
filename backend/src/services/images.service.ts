@@ -13,6 +13,24 @@ export class ImagesService {
     }
   }
 
+  /**
+   * Absolute path of an image, creating the directory first so a caller that
+   * writes the file itself — ffmpeg, in poster.ts — has somewhere to put it.
+   */
+  static pathFor(filename: string): string {
+    ImagesService.ensureDir();
+
+    return path.join(IMAGE_DIR, filename);
+  }
+
+  static exists(filename: string): boolean {
+    try {
+      return fs.existsSync(path.join(IMAGE_DIR, filename));
+    } catch {
+      return false;
+    }
+  }
+
   static async download(url: string, filename: string): Promise<string | null> {
     try {
       ImagesService.ensureDir();

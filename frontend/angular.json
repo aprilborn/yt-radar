@@ -6,12 +6,12 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "yt-radar": {
+    "retriever": {
       "projectType": "application",
       "schematics": {},
       "root": "",
       "sourceRoot": "src",
-      "prefix": "yt",
+      "prefix": "rt",
       "architect": {
         "build": {
           "builder": "@angular/build:application",
@@ -29,7 +29,7 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/material-theme.scss", "src/styles.css"]
+            "styles": ["src/material-theme.scss", "src/styles.css", "./node_modules/angular-notifier/styles.css"]
           },
           "configurations": {
             "production": {
@@ -58,14 +58,15 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "allowedHosts": ["dev.cyfox.dev"]
           },
           "configurations": {
             "production": {
-              "buildTarget": "yt-radar:build:production"
+              "buildTarget": "retriever:build:production"
             },
             "development": {
-              "buildTarget": "yt-radar:build:development",
+              "buildTarget": "retriever:build:development",
               "proxyConfig": "proxy.conf.json"
             }
           },

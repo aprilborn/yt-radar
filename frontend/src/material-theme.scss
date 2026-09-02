@@ -1,4 +1,62 @@
 @use '@angular/material' as mat;
+@use './styles/theme-colors' as brand;
+
+/**
+ * The brand red, and the one value to change if it ever moves.
+ *
+ * It has to be pinned rather than left to the tonal ramp. brand.$primary-palette
+ * is seeded from this colour, but M3's dark scheme takes primary from tone 80
+ * (#ffb3ac here) - never tone 50, which is where #eb1d29 actually sits. Seeding
+ * alone would therefore give a red-tinted theme with a pale salmon accent, not
+ * the brand colour. Generating the palette still earns its keep: every other
+ * token (containers, outlines, neutrals, error) stays harmonised around the red.
+ *
+ * White on this red is 4.43:1 and the red on the #0f0f0f page is 4.33:1 - over
+ * the 3:1 bar for icons, fills and large text, a shade under the 4.5:1 bar for
+ * small text. That is the deliberate cost of an exact brand colour.
+ */
+$rt-brand-red: #eb1d29;
+$rt-brand-red-contrast: #ffffff;
+
+@mixin rt-pin-brand-red {
+  --mat-sys-primary: #{$rt-brand-red};
+
+  mat-form-field {
+    --mat-sys-on-primary: #{$rt-brand-red-contrast};
+    --mat-sys-outline: $rt-brand-red-contrast;
+    --mat-sys-on-surface-variant: $rt-brand-red-contrast;
+  }
+
+  rt-subscriptions,
+  rt-subscription-form {
+    --mat-sys-outline: light-dark(#73796e, #8d9387);
+    --mat-sys-surface-variant: light-dark(#dfe4d7, #43483f);
+  }
+}
+
+/**
+ * The colours the user can pick, mapped onto Material's prebuilt palettes.
+ *
+ * mat.theme() is a Sass mixin: it runs at build time, so there is no way to
+ * re-run it for a colour chosen in the browser. The runtime switch therefore
+ * works by pre-generating one block per colour, keyed on a data-theme attribute
+ * that UiConfigService writes onto <html>.
+ *
+ * Only `color` is passed below - typography and density are emitted once on
+ * `html` and never change, so re-emitting them per colour would just be dead
+ * bytes. Each block is ~50 --mat-sys-* custom properties; all seven together
+ * are ~31 kB raw but ~3 kB over the wire, since the blocks are near-identical
+ * and gzip collapses them.
+ */
+$rt-theme-palettes: (
+  'red': brand.$primary-palette,
+  'green': mat.$green-palette,
+  'blue': mat.$blue-palette,
+  'yellow': mat.$yellow-palette,
+  'purple': mat.$violet-palette,
+  'orange': mat.$orange-palette,
+  'pink': mat.$rose-palette,
+);
 
 :root {
   @include mat.slide-toggle-overrides(
@@ -18,14 +76,57 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$chartreuse-palette,
+        primary: brand.$primary-palette,
         tertiary: mat.$orange-palette,
-        warn: mat.$red-palette,
       ),
       typography: Roboto,
       density: 0,
     )
   );
+
+  @include rt-pin-brand-red;
+
+  /**
+   * App-level brand accent. Everything the app paints itself - as opposed to
+   * what Material paints - reads these instead of a literal colour, so it
+   * follows the picked theme for free. `var()` resolves at use time, so
+   * redefining --mat-sys-primary in the blocks below is enough; these two never
+   * need restating.
+   *
+   * Semantic colours are deliberately NOT routed through here: red still means
+   * failed/offline and green still means success, whatever the theme is.
+   */
+  --rt-accent: var(--mat-sys-primary);
+  --rt-accent-contrast: var(--mat-sys-on-primary);
+}
+
+// One block per selectable colour; UiConfigService toggles data-theme on <html>.
+// html[data-theme] (0,1,1) outranks the plain `html` block above (0,0,1), so the
+// picked colour wins without !important.
+@each $name, $palette in $rt-theme-palettes {
+  html[data-theme='#{$name}'] {
+    @include mat.theme(
+      (
+        color: (
+          primary: $palette,
+          tertiary: mat.$orange-palette,
+        ),
+      )
+    );
+
+    @if $name == 'red' {
+      @include rt-pin-brand-red;
+      .mdc-button {
+        --mat-sys-on-primary: white;
+      }
+      .mat-mdc-table .mat-icon {
+        --mat-icon-color: white;
+      }
+      rt-downloads .mat-mdc-table {
+        --mat-sys-outline: white;
+      }
+    }
+  }
 }
 
 body {
@@ -61,7 +162,7 @@ body {
   backdrop-filter: blur(3px);
 }
 
-.yt-snackbar {
+.rt-snackbar {
   text-align: center;
 
   .mdc-button__label,

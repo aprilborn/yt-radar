@@ -1,6 +1,6 @@
 {
-  "name": "YT-Radar",
-  "short_name": "YT-Radar",
+  "name": "Retriever",
+  "short_name": "Retriever",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

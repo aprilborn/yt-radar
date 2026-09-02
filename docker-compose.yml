@@ -1,8 +1,8 @@
 services:
-  yt-radar:
+  retriever:
     build: .
-    container_name: yt-radar
-    image: yt-radar
+    container_name: retriever
+    image: retriever
     ports:
       - "8000:8000"
 
@@ -10,8 +10,23 @@ services:
       PORT: 8000
       HOST: 0.0.0.0
       DATA_DIR: /data
+      DOWNLOADS_DIR: ./downloads
+      # Uncomment together with the `pot` service below to route YouTube
+      # extraction through a proof-of-origin token provider. Left unset, the
+      # POT plugin is never loaded and yt-dlp behaves exactly as before.
+      # POT_BASE_URL: http://pot:4416
 
     volumes:
       - ./data:/data
+      # Where yt-dlp writes finished files.
+      - ./downloads:/downloads
 
     restart: unless-stopped
+
+  # The POT provider server. Optional — see the README. Keep its tag in step
+  # with POT_PLUGIN_VERSION in the Dockerfile.
+  # pot:
+  #   image: brainicism/bgutil-ytdlp-pot-provider:1.3.2
+  #   container_name: retriever-pot
+  #   init: true
+  #   restart: unless-stopped

@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+/* :host ::ng-deep .mat-mdc-card.mdc-card {
+  --mat-sys-corner-medium: 0;
+} */

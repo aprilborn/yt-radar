@@ -1,4 +1,4 @@
-import { AudioFormats, Codecs, VideoFormats } from '@shared/models';
+import { AudioFormats, Codecs, DownloadStatus, HomeSection, VideoFormats } from '@shared/models';
 
 export const CodecLabels: Record<Codecs, string> = {
   [Codecs.AUTO]: 'Auto',
@@ -20,4 +20,17 @@ export const AudioFormatLabels: Record<AudioFormats, string> = {
   [AudioFormats.OPUS]: 'OPUS',
   [AudioFormats.WAV]: 'WAV',
   [AudioFormats.FLAC]: 'FLAC',
+};
+
+export const DownloadStatusLabels: Record<DownloadStatus, string> = {
+  [DownloadStatus.QUEUED]: 'Queued',
+  [DownloadStatus.RUNNING]: 'Downloading',
+  [DownloadStatus.DONE]: 'Done',
+  [DownloadStatus.FAILED]: 'Failed',
+  [DownloadStatus.CANCELED]: 'Canceled',
+};
+
+export const SectionLabels: Record<HomeSection, string> = {
+  [HomeSection.SUBSCRIPTIONS]: 'Subscriptions',
+  [HomeSection.DOWNLOADS]: 'Downloads',
 };

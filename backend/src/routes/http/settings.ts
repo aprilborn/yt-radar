@@ -2,29 +2,32 @@ import { FastifyInstance } from "fastify";
 import { db } from "../../db/index.js";
 import { settings } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
+import * as ytdlp from "../../services/ytdlp.js";
 
 export async function settingsRoutes(app: FastifyInstance) {
-  app.post("/api/settings/validate-metube", async (req) => {
-    const { url } = req.body as { url: string };
-    if (!url) return { status: false };
+  app.post("/api/settings/validate-ytdlp", async (req) => {
+    const body = (req.body ?? {}) as {
+      downloadsDir?: string;
+      cookiesPath?: string | null;
+    };
 
-    try {
-      const test = new URL("/add", url);
+    const [row] = await db
+      .select()
+      .from(settings)
+      .where(eq(settings.id, 1));
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 2000);
+    // Validate against the values being edited, not the ones already saved.
+    const health = await ytdlp.checkHealth({
+      ...row,
+      downloadsDir: body.downloadsDir ?? row?.downloadsDir ?? null,
+      cookiesPath: body.cookiesPath ?? row?.cookiesPath ?? null
+    });
 
-      const res = await fetch(test.toString(), {
-        method: "OPTIONS",
-        signal: controller.signal
-      });
-
-      clearTimeout(timeout);
-
-      return { status: res.ok };
-    } catch {
-      return { status: false };
-    }
+    return {
+      status: health.ok,
+      version: health.version,
+      error: health.error ?? null
+    };
   });
 
   app.get("/api/settings", async () => {
@@ -39,37 +42,28 @@ export async function settingsRoutes(app: FastifyInstance) {
   app.post("/api/settings", async (req) => {
     const body = req.body as {
       enabled: boolean | null;
-      metubeUrl: string;
       webhookUrl?: string | null;
+      downloadsDir?: string | null;
+      cookiesPath?: string | null;
+      ytdlpArgs?: string | null;
+      ytdlpConcurrency?: number | string | null;
     };
+
+    const concurrency = Math.min(
+      Math.max(Number(body.ytdlpConcurrency) || 2, 1),
+      10
+    );
 
     await db
       .update(settings)
       .set({
         enabled: body.enabled ?? true,
-        metubeUrl: body.metubeUrl,
         webhookUrl: body.webhookUrl ?? null,
-        updatedAt: new Date().toISOString()
-      })
-      .where(eq(settings.id, 1));
-
-    const [updated] = await db
-      .select()
-      .from(settings)
-      .where(eq(settings.id, 1));
-
-    return updated;
-  });
-
-  app.post("/api/metube", async (req) => {
-    const body = req.body as {
-      metubeUrl: string;
-    };
-
-    await db
-      .update(settings)
-      .set({
-        metubeUrl: body.metubeUrl,
+        downloadsDir:
+          body.downloadsDir?.trim() || ytdlp.DEFAULT_DOWNLOADS_DIR,
+        cookiesPath: body.cookiesPath?.trim() || null,
+        ytdlpArgs: body.ytdlpArgs?.trim() || null,
+        ytdlpConcurrency: concurrency,
         updatedAt: new Date().toISOString()
       })
       .where(eq(settings.id, 1));

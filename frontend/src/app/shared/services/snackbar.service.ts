@@ -20,7 +20,7 @@ export class SnackbarService {
   open(message: string, action: string, type: SnackbarType, duration: number = 3000): MatSnackBarRef<unknown> {
     return this._snackBar.open(message, action, {
       horizontalPosition: 'right',
-      panelClass: ['yt-snackbar', type],
+      panelClass: ['rt-snackbar', type],
       duration,
     });
   }
@@ -29,7 +29,7 @@ export class SnackbarService {
     return this._snackBar.openFromComponent(NotificationSnackbar, {
       data,
       horizontalPosition: 'right',
-      panelClass: ['yt-snackbar', type],
+      panelClass: ['rt-snackbar', type],
       duration,
     });
   }
@@ -38,7 +38,7 @@ export class SnackbarService {
     return this._snackBar.openFromComponent(WebhookSnackbar, {
       data: { type, duration },
       horizontalPosition: 'right',
-      panelClass: ['yt-snackbar', type],
+      panelClass: ['rt-snackbar', type],
       duration,
     });
   }

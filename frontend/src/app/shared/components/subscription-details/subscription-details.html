@@ -1,0 +1,175 @@
+<div class="details-wrapper" [class.details-wrapper--expanded]="isExpanded()">
+  <div class="details-content">
+    <div class="grid grid-cols-12 gap-2 py-4 w-full relative">
+      @let isIntervalSelected = sub().pollType === pollType.INTERVAL;
+      @let isInactiveVisible = !sub().enabled && isExpanded();
+
+      <!-- Inactive channel label -->
+      <div class="absolute top-0 left-0 w-full h-full z-0 flex items-center">
+        <div class="rotate-[-30deg]">
+          <span class="text-center font-bold uppercase inactive-channel" [class.inactive-visible]="isInactiveVisible">
+            Inactive
+          </span>
+        </div>
+      </div>
+
+      <!-- Channel info -->
+      <div class="flex flex-col col-span-4 z-1">
+        <div class="flex flex-col gap-5 px-4">
+          <figure class="flex flex-col items-start gap-5">
+            <rt-card
+              [imageSourceUrl]="sub().channelAvatarPath"
+              [url]="'https://www.youtube.com/channel/' + sub().channelId"
+              customClass="w-[200px] rounded-full overflow-hidden"
+              mockMessage="Channel%20Avatar"
+            />
+
+            <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
+              <span class="text-4xl font-bold" matTooltip="Watcher ID: {{ sub().id }}">{{ sub().name }}</span>
+              <span class="text-sm text-gray-500 max-h-80 overflow-y-auto">{{ sub().channelDescription ?? '—' }}</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Channel details -->
+      <div class="flex flex-col col-span-4 z-1">
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          <span>Status:</span>
+          <p class="flex items-center">
+            <span
+              [class]="'inline-block h-2 w-2 mr-2 rounded-full ' + (sub().enabled ? 'bg-green-400' : 'bg-red-400')"
+            ></span>
+            <span>{{ sub().enabled ? 'Enabled' : 'Disabled' }}</span>
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          @let isWebhookEnabled = sub().notifyHA;
+          @let isCustom = sub().webhookOverride?.length;
+          @let haWebhook = sub().webhookOverride ?? settings().webhookUrl;
+
+          <span>Webhook:</span>
+          <span
+            class="whitespace-nowrap overflow-hidden text-ellipsis"
+            [matTooltip]="haWebhook"
+            [matTooltipDisabled]="!isWebhookEnabled"
+          >
+            <span
+              [class]="'inline-block h-2 w-2 mr-2 rounded-full ' + (isWebhookEnabled ? 'bg-green-400' : 'bg-red-400')"
+            ></span>
+            <span>{{ isWebhookEnabled ? 'Enabled' : 'Disabled' }} {{ isCustom ? ' (Custom)' : '' }}</span>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 items-center border-b border-gray-700 font-drop-shade">
+          @let isVideo = sub().type === types.VIDEO;
+
+          <div class="flex flex-wrap items-center justify-center gap-4 font-bold col-span-2">
+            <div
+              class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-8 bg-[#008000]"
+              matTooltip="Type"
+            >
+              <mat-icon>{{ sub().type }}_file</mat-icon>
+              {{ sub().type | titlecase }}
+            </div>
+
+            <div
+              class="flex items-center gap-2 border-gray-800 px-4 py-1 text-xs rounded-full h-8 bg-[#0000ff]"
+              matTooltip="Format"
+            >
+              {{ isVideo ? videoFormatLabels[sub().format] : audioFormatLabels[sub().format] }}
+            </div>
+
+            @if (sub().codec) {
+              <div
+                class="border-gray-800 flex items-center gap-4 px-4 py-1 text-xs rounded-full h-8 bg-[#ffa600ad] whitespace-nowrap"
+                matTooltip="Codec"
+              >
+                {{ codecLabels[sub().codec] }}
+                @if (sub().codec === codec.H264) {
+                  <mat-icon svgIcon="avc" />
+                } @else if (sub().codec === codec.H265) {
+                  <mat-icon fontIcon="hevc" />
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          @if (isIntervalSelected) {
+            <span>Poll interval:</span>
+          } @else {
+            <span>Poll time:</span>
+          }
+          @if (isIntervalSelected && sub().pollInterval) {
+            <span>
+              {{ sub().pollInterval * 60 | time: TimeFormat.LONG }}
+            </span>
+          } @else {
+            <span>{{ sub().pollTime | date: 'HH:mm' }}</span>
+          }
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          <span>Total downloads:</span>
+          <span>{{ sub().totalDownloads }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          <span>Last capture:</span>
+          <span>{{
+            sub().lastCaptureAt
+              ? (sub().lastCaptureAt | day: 'MMM dd,') + ' ' + 'at ' + (sub().lastCaptureAt | date: 'HH:mm')
+              : '—'
+          }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          <span>Last check:</span>
+          <span>{{
+            sub().lastCheckedAt
+              ? (sub().lastCheckedAt | day: 'MMM dd,') + ' ' + 'at ' + (sub().lastCheckedAt | date: 'HH:mm')
+              : '—'
+          }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4 border-b border-gray-700">
+          <span>Next check:</span>
+          <span>{{
+            sub().nextCheckAt && sub().enabled
+              ? (sub().nextCheckAt | day: 'MMM dd,') + ' ' + 'at ' + (sub().nextCheckAt | date: 'HH:mm')
+              : '—'
+          }}</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-10 py-4">
+          <span>Created:</span>
+          <span>{{ sub().createdAt ? (sub().createdAt | date: 'MMMM dd') : '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Last video -->
+      <div class="flex flex-col col-span-4 z-1">
+        <div class="flex flex-col gap-5 px-4">
+          <figure class="flex flex-col gap-5 items-center">
+            <rt-card
+              [imageSourceUrl]="sub().lastVideoThumbnailPath"
+              [url]="'https://youtu.be/' + sub().lastVideoId"
+              imgSize="310x235"
+              mockMessage="Video%20Thumbnail"
+            />
+
+            <figcaption class="flex flex-col gap-2 max-w-full whitespace-break-spaces wrap-break-word">
+              <strong class="text-center">{{ sub().lastVideoTitle ?? 'No video found' }}</strong>
+              <span class="text-sm text-gray-500 max-h-80 overflow-y-auto"
+                >{{ sub()?.lastVideoDescription?.trim() ?? 'No description found' }}
+              </span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

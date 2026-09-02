@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { catchError, filter, map, Observable, of } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
+import { DownloadModel } from '../models/download.model';
 import {
-  ChannelPayload,
-  MetubeStatusPayload,
+  SubscriptionPayload,
+  DownloaderStatusPayload,
+  DownloadRemovedPayload,
   NextCheckPayload,
   NotificationPayload,
   WebSocketData,
@@ -37,22 +39,42 @@ export class WsService {
     });
   }
 
-  metubeStatus$(): Observable<boolean> {
-    return this.wsMessage$<MetubeStatusPayload>('metube-status').pipe(
-      map(({ status }) => status),
-      catchError(() => of(false)),
+  downloaderStatus$(): Observable<DownloaderStatusPayload> {
+    return this.wsMessage$<DownloaderStatusPayload>('downloader-status').pipe(
+      catchError(() => of({ status: false, detail: null }) as Observable<DownloaderStatusPayload>),
     );
+  }
+
+  downloadUpdated$(): Observable<DownloadModel> {
+    return this.wsMessage$<DownloadModel>('download-updated');
+  }
+
+  /**
+   * Rows that changed together — a playlist expansion queueing hundreds of
+   * videos, or a cancel-all clearing them. Sent as one message rather than an
+   * event per row, which at 500 downloads would flood every open tab.
+   */
+  downloadsBatch$(): Observable<DownloadModel[]> {
+    return this.wsMessage$<DownloadModel[]>('downloads-batch');
+  }
+
+  downloadRemoved$(): Observable<DownloadRemovedPayload> {
+    return this.wsMessage$<DownloadRemovedPayload>('download-removed');
+  }
+
+  downloadsCleared$(): Observable<unknown> {
+    return this.wsMessage$<unknown>('downloads-cleared');
   }
 
   nextCheck$(): Observable<NextCheckPayload> {
     return this.wsMessage$<NextCheckPayload>('next-check');
   }
 
-  channelUpdated$(): Observable<ChannelPayload> {
-    return this.wsMessage$<ChannelPayload>('channel-updated');
+  subscriptionUpdated$(): Observable<SubscriptionPayload> {
+    return this.wsMessage$<SubscriptionPayload>('channel-updated');
   }
 
-  closeMetubeConnection() {
+  closeConnection() {
     this._socket.disconnect();
   }
 

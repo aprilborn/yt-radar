@@ -1,43 +1,39 @@
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatButton, MatMiniFabButton } from '@angular/material/button';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { MatButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { SettingsDialog } from '@shared/components';
-import { HttpService, SnackbarService, SnackbarType, StorageService } from '@shared/services';
-import { tap } from 'rxjs';
-import { WsService } from 'src/app/shared/services/ws.service';
+import { HttpService, StorageService } from '@shared/services';
+import { NotifierService } from 'angular-notifier';
+import { catchError, of } from 'rxjs';
+import { ThemeDialog } from '../../shared/components/theme-dialog/theme-dialog';
 
 @Component({
-  selector: 'yt-header',
-  imports: [MatIcon, MatButton, MatMiniFabButton],
+  selector: 'rt-header',
+  imports: [MatIcon, MatButton],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
 export class Header implements OnInit {
   private readonly _storage = inject(StorageService);
   private readonly _httpService = inject(HttpService);
-  private readonly _wsService = inject(WsService);
   private readonly _dialog = inject(MatDialog);
-  private readonly _snackBar = inject(SnackbarService);
-  private readonly _destroyRef = inject(DestroyRef);
+  private readonly _notifier = inject(NotifierService);
 
   isEnabled = computed(() => this._storage.settings().enabled ?? false);
-  isConnected = signal<boolean>(true);
+  ytdlpVersion = signal<string | null>(null);
+  ui = this._storage.uiConfig;
 
   ngOnInit() {
-    this._wsService
-      .metubeStatus$()
-      .pipe(
-        takeUntilDestroyed(this._destroyRef),
-        tap((status) => this.isConnected.set(status)),
-      )
-      .subscribe();
+    this._loadVersion();
   }
 
-  openDialog(): void {
-    const dialogRef = this._dialog.open(SettingsDialog, { maxWidth: '500px' });
-    dialogRef.afterClosed().subscribe();
+  openSettingsDialog(): void {
+    this._dialog.open(SettingsDialog, { maxWidth: '500px' });
+  }
+
+  openThemeDialog(): void {
+    this._dialog.open(ThemeDialog, { maxWidth: '500px' });
   }
 
   togglePause() {
@@ -47,14 +43,19 @@ export class Header implements OnInit {
           ...this._storage.settings(),
           enabled: result?.enabled ?? false,
         });
-        this._snackBar.open(
+        this._notifier.notify(
+          result?.enabled ? 'success' : 'info',
           result?.enabled ? 'App is now running' : 'App is now paused',
-          null,
-          result?.enabled ? SnackbarType.SUCCESS : SnackbarType.INFO,
-          3000,
         );
       },
-      error: () => this._snackBar.open('Failed to toggle pause. Please try again.', null, SnackbarType.ERROR, 3000),
+      error: () => this._notifier.notify('error', 'Failed to toggle pause. Please try again.'),
     });
+  }
+
+  private _loadVersion() {
+    this._httpService
+      .getYtdlpVersion()
+      .pipe(catchError(() => of({ version: null, available: false })))
+      .subscribe((result) => this.ytdlpVersion.set(result.version));
   }
 }

@@ -6,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'yt-snackbar-dialog',
+  selector: 'rt-snackbar-dialog',
   imports: [MatButton, MatIcon, MatTooltip],
   template: `
     <h2 mat-dialog-title>Webhook payload example:</h2>

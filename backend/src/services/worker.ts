@@ -6,7 +6,7 @@ import { channel, settings } from "../db/schema.js";
 import { eq, sql } from "drizzle-orm";
 
 import { getLatestVideo } from "./rss.js";
-import { sendToMeTube } from "./metube.js";
+import * as DownloadQueue from "./download-queue.js";
 import { sendWebhook } from "./webhook.js";
 import { withLock } from "./lock.js";
 import { ImagesService } from "./images.service.js";
@@ -104,15 +104,7 @@ export async function processChannel(
       .where(eq(channel.id, ch.id));
 
     if (ch.startFromLast) {
-      await sendToMeTube({
-        metubeUrl: appSettings.metubeUrl,
-        videoUrl: latest.link ?? "",
-        type: ch.type,
-        codec: ch.codec ?? null,
-        format: ch.format,
-        prefix: ch.prefix ?? "",
-        tag: ch.tag ?? ""
-      });
+      await DownloadQueue.enqueue({ channel: ch, settings: appSettings, video: latest });
 
       broadcast(
         'notification',
@@ -151,15 +143,7 @@ export async function processChannel(
     ch.lastVideoId
   );
 
-  await sendToMeTube({
-    metubeUrl: appSettings.metubeUrl,
-    videoUrl: latest.link ?? "",
-    type: ch.type,
-    codec: ch.codec ?? null,
-    format: ch.format,
-    prefix: ch.prefix ?? "",
-    tag: ch.tag ?? ""
-  });
+  await DownloadQueue.enqueue({ channel: ch, settings: appSettings, video: latest });
 
   const webhookUrl =
     ch.webhookOverride || appSettings.webhookUrl;
@@ -188,8 +172,7 @@ export async function processChannel(
       lastVideoThumbnailPath: thumbnailPath,
       lastCaptureAt: nowIso,
       lastCheckedAt: nowIso,
-      nextCheckAt,
-      totalDownloads: sql`${channel.totalDownloads} + 1`
+      nextCheckAt
     })
     .where(eq(channel.id, ch.id));
 

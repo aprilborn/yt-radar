@@ -12,7 +12,7 @@ interface NextCheckIn {
 }
 
 @Component({
-  selector: 'yt-next-check',
+  selector: 'rt-next-check',
   imports: [AsyncPipe],
   templateUrl: './next-check.html',
   styleUrl: './next-check.css',
@@ -24,7 +24,7 @@ export class NextCheckComponent implements OnInit {
 
   readonly nextCheck = this._storage.nextCheck;
   settings = this._storage.settings;
-  activeChannels = computed(() => this._storage.channels().filter((c) => c.enabled));
+  activeChannels = computed(() => this._storage.subscriptions().filter((c) => c.enabled));
   timer$: Observable<NextCheckIn> = this._getTimer();
 
   constructor() {

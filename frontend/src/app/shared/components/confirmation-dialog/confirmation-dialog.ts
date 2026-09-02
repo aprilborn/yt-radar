@@ -10,27 +10,18 @@ import {
 } from '@angular/material/dialog';
 
 @Component({
-  selector: 'yt-confirmation-dialog',
+  selector: 'rt-confirmation-dialog',
   imports: [MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose, MatButton],
   template: `
     <h2 mat-dialog-title>{{ data.title }}</h2>
 
     <mat-dialog-content>
-      <p>{{ data.message }}</p>
+      <p class="text-white">{{ data.message }}</p>
     </mat-dialog-content>
 
     <mat-dialog-actions>
       <button matButton mat-dialog-close class="text-gray-300!" disableRipple>Cancel</button>
-      <button
-        matButton="outlined"
-        mat-dialog-close="true"
-        color="warn"
-        class="text-red-400!"
-        disableRipple
-        cdkFocusInitial
-      >
-        Delete
-      </button>
+      <button matButton="tonal" mat-dialog-close="true" disableRipple cdkFocusInitial>Delete</button>
     </mat-dialog-actions>
   `,
   styles: [

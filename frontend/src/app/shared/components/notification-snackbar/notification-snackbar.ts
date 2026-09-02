@@ -11,7 +11,7 @@ export interface NotificationData {
 }
 
 @Component({
-  selector: 'yt-notification-snackbar',
+  selector: 'rt-notification-snackbar',
   imports: [MatDialogTitle, MatButton, MatIcon],
   template: ` <div class="flex flex-col gap-2 relative">
       <div class="absolute top-[-8px] right-[-10px] cursor-pointer" (click)="snackBar.dismiss()">

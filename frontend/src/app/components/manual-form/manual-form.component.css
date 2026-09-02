@@ -1,0 +1,24 @@
+mat-select {
+  transform: translateY(4px);
+  padding-right: 10px;
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+:host ::ng-deep .bg-transparent .mat-mdc-text-field-wrapper {
+  --mat-form-field-filled-container-color: transparent;
+}
+
+:host ::ng-deep .clip-start .mat-mdc-text-field-wrapper {
+  border-top-right-radius: 0;
+}
+
+:host ::ng-deep .clip-end .mat-mdc-text-field-wrapper {
+  border-top-left-radius: 0;
+}

@@ -1,0 +1,198 @@
+<mat-card>
+  <mat-card-header class="mb-5">
+    <mat-card-title>Start downloading now</mat-card-title>
+    <!-- <mat-card-subtitle class="font-thin!">Download YouTube videos, playlists, and channels with ease. </mat-card-subtitle> -->
+  </mat-card-header>
+
+  <mat-card-content class="mt-2">
+    <form [formGroup]="form" (ngSubmit)="download()">
+      <mat-form-field appearance="outline" class="w-full" #urlMatInput>
+        <input matInput formControlName="url" #urlInput (click)="pasteUrl()" />
+        <mat-label>Paste video/playlist/channel URL</mat-label>
+
+        <div
+          matSuffix
+          class="flex items-center h-13 px-5 rounded-r-md"
+          [class.cursor-pointer]="!isPending()"
+          [class.hover:bg-gray-100/10]="!isPending()"
+          [matTooltip]="isPending() ? 'Working…' : 'Download'"
+          (click)="download()"
+        >
+          <mat-icon
+            [fontIcon]="isPending() ? 'radar' : 'download'"
+            [class]="
+              isPending()
+                ? 'text-yellow-500! animate-spin'
+                : form.controls.url.value && form.controls.url.valid
+                  ? `text-(--rt-accent)! animate-bounce`
+                  : ''
+            "
+          />
+        </div>
+
+        @if ((isSubmitted() || form.controls.url.dirty) && form.controls.url.invalid) {
+          <mat-error>
+            {{ form.controls.url.errors?.['message'] ?? 'A video, playlist or channel URL is required' }}
+          </mat-error>
+        }
+      </mat-form-field>
+
+      @let isVideo = form.controls.type.value === typesEnum.VIDEO;
+      @let isAudio = form.controls.type.value === typesEnum.AUDIO;
+      @let isThumbnail = form.controls.type.value === typesEnum.THUMBNAIL;
+
+      <div
+        class="grid gap-x-6"
+        [class.grid-cols-3]="isVideo"
+        [class.lg:grid-cols-4]="isVideo"
+        [class.grid-cols-3]="isAudio"
+        [class.grid-cols-2]="isThumbnail"
+      >
+        <mat-form-field appearance="outline" class="w-full col-span-1">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-select-trigger class="flex items-end gap-2 w-fit h-full">
+              <mat-icon matSuffix [fontIcon]="typeIcons[form.controls.type.value]" />
+              {{ form.controls.type.value | titlecase }}
+            </mat-select-trigger>
+
+            @for (type of types; track type) {
+              <mat-option [value]="type">{{ type | titlecase }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (isVideo || isAudio) {
+          <mat-form-field appearance="outline" class="w-full col-span-1">
+            <mat-label>Format</mat-label>
+
+            <mat-select formControlName="format">
+              <mat-select-trigger class="flex items-end gap-2 w-fit h-full">
+                <mat-icon matSuffix [svgIcon]="formatIcons[form.controls.format.value]" />
+                {{ form.controls.format.value | titlecase }}
+              </mat-select-trigger>
+
+              @for (format of formats(); track format) {
+                <mat-option [value]="format">{{ format | titlecase }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full col-span-1 order-3 lg:order-last">
+            <mat-label>Quality</mat-label>
+
+            <mat-select formControlName="quality">
+              <mat-select-trigger class="flex items-end gap-2 w-fit h-full">
+                @if (isVideo) {
+                  <mat-icon matSuffix [svgIcon]="qualityIcons[form.controls.quality.value]" />
+                }
+                {{ form.controls.quality.value | titlecase }}
+              </mat-select-trigger>
+
+              @for (quality of qualities(); track quality) {
+                <mat-option [value]="quality">{{ quality | titlecase }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        @if (isVideo) {
+          <mat-form-field appearance="outline" class="w-full col-span-3 lg:col-span-1 order-last lg:order-3">
+            <mat-label>Codec</mat-label>
+
+            <mat-select formControlName="codec">
+              <mat-select-trigger class="flex items-end gap-2 w-fit h-full">
+                <mat-icon matSuffix [svgIcon]="codecIcons[form.controls.codec.value]" />
+                {{ form.controls.codec.value | titlecase }}
+              </mat-select-trigger>
+
+              @for (codec of codecs; track codec) {
+                <mat-option [value]="codec">{{ codec | titlecase }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        }
+
+        @if (isThumbnail) {
+          <mat-form-field appearance="outline" class="w-full col-span-1">
+            <mat-label>Thumbnail</mat-label>
+            <input matInput [disabled]="true" value="JPG" />
+          </mat-form-field>
+        }
+      </div>
+
+      <!-- Extra options -->
+      <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title> Advanced options </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="grid grid-cols-2 gap-6">
+            <mat-form-field class="col-span-2 lg:col-span-1 order-1" appearance="outline">
+              <mat-label>File name prefix</mat-label>
+              <input matInput formControlName="prefix" />
+              <mat-icon matIconSuffix fontIcon="label" />
+            </mat-form-field>
+
+            <div class="col-span-2 lg:col-span-1 flex order-3 lg:order-2">
+              <mat-form-field appearance="fill" class="bg-transparent clip-start">
+                <mat-label>Clip start</mat-label>
+                <input matInput formControlName="clipStart" placeholder="Ex. 00:01:15" />
+                <mat-icon matIconSuffix fontIcon="last_page" />
+              </mat-form-field>
+
+              <mat-form-field appearance="fill" class="bg-transparent clip-end">
+                <mat-label>Clip end</mat-label>
+                <input matInput formControlName="clipEnd" placeholder="Ex. 00:25:30" />
+                <mat-icon matIconPrefix fontIcon="first_page" />
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="col-span-2 lg:col-span-1 order-2 lg:order-3">
+              <mat-label>Destination folder</mat-label>
+              <input
+                matInput
+                formControlName="destinationFolder"
+                placeholder="e.g. podcasts"
+                type="text"
+                [matAutocomplete]="dir"
+              />
+              <mat-icon matIconSuffix fontIcon="folder" matTooltip="Inside downloads folder" />
+
+              <mat-autocomplete #dir="matAutocomplete">
+                @for (folder of folders(); track folder) {
+                  <mat-option [value]="folder">
+                    {{ folder }}
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <div class="col-span-2 lg:col-span-1 grid grid-cols-2 items-center gap-6 order-4">
+              <div class="col-span-1">
+                <mat-checkbox formControlName="removeSponsor" matTooltip="Cut sponsor segments using SponsorBlock">
+                  Remove sponsors
+                </mat-checkbox>
+              </div>
+
+              <div class="col-span-1 text-right lg:text-left">
+                <mat-checkbox formControlName="splitChapters" matTooltip="Write one file per chapter">
+                  Split chapters
+                </mat-checkbox>
+              </div>
+            </div>
+
+            <mat-form-field class="col-span-2 order-5" appearance="outline">
+              <mat-label>yt-dlp extra arguments</mat-label>
+              <input matInput formControlName="ytdlpArgs" placeholder='Ex. -o "%(title)s [%(id)s].%(ext)s"' />
+              <mat-icon matIconSuffix fontIcon="settings" />
+            </mat-form-field>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <button type="submit" class="hidden" [disabled]="isPending()"></button>
+    </form>
+  </mat-card-content>
+</mat-card>

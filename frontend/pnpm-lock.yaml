@@ -34,6 +34,9 @@ importers:
       '@angular/router':
         specifier: ^21.2.1
         version: 21.2.1(@angular/common@21.2.1(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))(@angular/platform-browser@21.2.1(@angular/animations@21.2.1(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2)))(@angular/common@21.2.1(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2)))(rxjs@7.8.2)
+      angular-notifier:
+        specifier: ^14.0.0
+        version: 14.0.0(@angular/common@21.2.1(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))
       rxjs:
         specifier: ~7.8.2
         version: 7.8.2
@@ -1940,6 +1943,13 @@ packages:
     resolution:
       { integrity: sha512-Rf7xmeuIo7nb6S4mp4abW2faW8DauZyE2faBIKFaUfP3wnpOvNSbiI5AwVhqBNj0jPgBWEvhyCu0sLjN2q77Rg== }
     engines: { node: '>= 14.0.0' }
+
+  angular-notifier@14.0.0:
+    resolution:
+      { integrity: sha512-xGCwn7bdol+vEJxTW1LYeuIFGgwa9iQWv9l9Ry2QWNrn8RNIJY/FEDJzZpZ7dkVjUbZ8Lw+bWVMdnCzjM5kTlA== }
+    peerDependencies:
+      '@angular/common': '>= 16.0.0 < 17.0.0'
+      '@angular/core': '>= 16.0.0 < 17.0.0'
 
   ansi-escapes@7.3.0:
     resolution:
@@ -3852,6 +3862,10 @@ packages:
     peerDependencies:
       typescript: '>=4.8.4'
 
+  tslib@2.4.1:
+    resolution:
+      { integrity: sha512-tGyy4dAjRIEwI7BzsB0lynWgOpfqjUdq91XXAlIWD2OwKBH7oCl/GZG/HT4BOHrTlPMOASlMQ7veyTqpmRcrNA== }
+
   tslib@2.8.1:
     resolution:
       { integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w== }
@@ -5616,6 +5630,12 @@ snapshots:
       '@algolia/requester-fetch': 5.48.1
       '@algolia/requester-node-http': 5.48.1
 
+  angular-notifier@14.0.0(@angular/common@21.2.1(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2)):
+    dependencies:
+      '@angular/common': 21.2.1(@angular/core@21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@angular/core': 21.2.1(@angular/compiler@21.2.1)(rxjs@7.8.2)
+      tslib: 2.4.1
+
   ansi-escapes@7.3.0:
     dependencies:
       environment: 1.1.0
@@ -7278,6 +7298,8 @@ snapshots:
   ts-api-utils@2.4.0(typescript@5.9.3):
     dependencies:
       typescript: 5.9.3
+
+  tslib@2.4.1: {}
 
   tslib@2.8.1: {}
 

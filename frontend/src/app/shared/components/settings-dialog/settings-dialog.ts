@@ -3,9 +3,9 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Settings } from '@shared/components';
 
 @Component({
-  selector: 'yt-settings-dialog',
+  selector: 'rt-settings-dialog',
   imports: [Settings],
-  template: `<yt-settings (closeDialog)="dialogRef.close()" />`,
+  template: `<rt-settings (closeDialog)="dialogRef.close()" />`,
   styleUrl: './settings-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

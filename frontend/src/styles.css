@@ -7,8 +7,49 @@
   src: url('public/assets/fonts/drop-shade-shadow.ttf') format('truetype');
 }
 
+@font-face {
+  font-family: 'calculator';
+  src: url('public/assets/fonts/calculator.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'rubik';
+  src: url('public/assets/fonts/rubik.ttf') format('truetype');
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0.3;
+    transform: scale(1.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shrink {
+  100% {
+    height: 0;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.animate-shrink {
+  animation: shrink 0.5s ease-in-out forwards !important;
+}
+
 .font-drop-shade {
   font-family: 'drop-shade', sans-serif;
+}
+
+.font-calculator {
+  font-family: 'calculator', sans-serif;
+}
+
+.font-rubik {
+  font-family: 'rubik', sans-serif;
 }
 
 input::-webkit-outer-spin-button,
@@ -21,6 +62,10 @@ input::-webkit-inner-spin-button {
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+html {
+  --mat-dialog-container-shape: 0;
 }
 
 html,
@@ -45,7 +90,7 @@ span {
 ::-webkit-scrollbar-thumb {
   -webkit-border-radius: 10px;
   border-radius: 10px;
-  background: rgba(255, 0, 0, 0.8);
+  background: color-mix(in oklab, var(--rt-accent) 80%, transparent);
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
 }
 
@@ -55,4 +100,588 @@ span {
 
 .app-disabled {
   filter: grayscale(1);
+}
+
+.reveal {
+  &.animate {
+    img {
+      animation: reveal 2s ease-out forwards !important;
+    }
+  }
+
+  img {
+    transform: scale(1.5);
+    opacity: 0.3;
+  }
+}
+
+.unblur {
+  filter: blur(100px);
+  transition: filter 1s ease-out;
+
+  &.animate {
+    filter: blur(0);
+  }
+}
+
+.move-right {
+  transform: translateX(-150%);
+  transition: transform 1.2s ease-out !important;
+
+  &.animate {
+    transform: translateX(0);
+  }
+}
+
+.move-left {
+  transform: translateX(150%) !important;
+  transition: transform 1.2s ease-out !important;
+
+  &.animate {
+    transform: translateX(0) !important;
+  }
+}
+
+.rise {
+  overflow: hidden;
+
+  & > * {
+    transform: translateY(100px);
+    opacity: 0;
+    transition:
+      transform 1s ease-out,
+      opacity 1s ease-out;
+  }
+
+  &.animate {
+    & > * {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+.fly-up {
+  transform: translateY(100px);
+  transition: transform 1s ease-out;
+
+  &.animate {
+    transform: translateY(0);
+  }
+}
+
+.none {
+  display: none;
+
+  &.animate {
+    display: block;
+  }
+}
+
+.glass {
+  overflow: hidden;
+  position: relative;
+  background-color: rgb(25, 25, 25);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 30%;
+    width: 150%;
+    height: 300%;
+    pointer-events: none;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    transform: translate(-50%, -50%) rotate(25deg);
+    mix-blend-mode: screen;
+    opacity: 0.03;
+    filter: blur(12px);
+  }
+}
+
+.dotted-bg {
+  background-color: transparent;
+  background-image: radial-gradient(var(--br-color) 1px, transparent 1px);
+  background-size: 8px 8px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.glass-bg {
+  background-color: rgb(25, 25, 25);
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 30%;
+    width: 150%;
+    height: 300%;
+    pointer-events: none;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    transform: translate(-50%, -50%) rotate(25deg);
+    mix-blend-mode: screen;
+    opacity: 0.03;
+    filter: blur(12px);
+  }
+}
+
+.gradient-bg {
+  background-color: transparent;
+  background-image: linear-gradient(90deg, var(--bg-color) 0%, var(--rt-accent) 50%, var(--bg-color) 100%);
+  background-size: 90% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/**
+ * Fire background. FireBgAnimation (see bg.directive.ts) injects .fire-bg-layer
+ * with the soot flakes and ember rows and randomises where each one sits; all
+ * of the motion is defined here, so the timing can be retuned without touching
+ * the directive.
+ */
+.fire-bg {
+  /* How far a soot flake drifts right before it burns out. */
+  --fire-soot-travel: 480px;
+  /* How long an ember row takes to cross the section. */
+  --fire-ember-flow: 2s;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  /* Opaque the whole way across - the embers supply the flicker, not the fill. */
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--rt-accent) 20%, var(--bg-color)) 10%,
+    color-mix(in oklab, var(--rt-accent) 75%, var(--bg-color)) 53%,
+    var(--bg-color) 90%
+  );
+  /* background-image: linear-gradient(
+    90deg,
+    var(--bg-color) 10%,
+    color-mix(in oklab, var(--rt-accent) 22%, var(--bg-color)) 20%,
+    color-mix(in oklab, var(--rt-accent) 60%, var(--bg-color)) 90%
+  ); */
+}
+
+/* The content is unpositioned, so without this it would paint under the layer. */
+.fire-bg > *:not(.fire-bg-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+.fire-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.fire-bg-soot {
+  position: absolute;
+  width: 12px;
+  opacity: 0;
+  will-change: transform, opacity;
+  /* Size, delay and duration are rolled per flake by the directive. */
+  animation-name: fire-soot-fly;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fire-soot-fly {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  15% {
+    opacity: 0.55;
+  }
+  75% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--fire-soot-travel), -80px, 0) rotate(140deg);
+  }
+}
+
+/**
+ * Two rows chasing each other, each travelling two section widths so it starts
+ * and ends fully off-screen. Half a cycle apart, they always cover the visible
+ * width between them, and every row is out of sight at the moment its cycle
+ * wraps - which is when the directive re-rolls its embers, so the re-roll is
+ * never seen.
+ */
+.fire-bg-embers {
+  position: absolute;
+  inset: 0;
+  /* Travel is doubled, so --fire-ember-flow still reads as "time to cross". */
+  animation: fire-embers-flow calc(var(--fire-ember-flow) * 2) linear infinite;
+}
+
+.fire-bg-embers.index-1 {
+  animation-delay: calc(var(--fire-ember-flow) * -1);
+}
+
+@keyframes fire-embers-flow {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.fire-bg-ember {
+  position: absolute;
+  border-radius: 50%;
+  background-color: color-mix(in oklab, var(--rt-accent) 60%, transparent);
+  box-shadow: 0 0 10px 0 color-mix(in oklab, var(--rt-accent) 45%, transparent);
+  /* Duration and delay are rolled per ember by the directive. */
+  animation: fire-ember-twinkle 2s ease-in-out infinite alternate;
+}
+
+@keyframes fire-ember-twinkle {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/**
+ * Rain background. RainBgAnimation (see bg.directive.ts) injects .rain-bg-layer
+ * with the drops and rolls each one's column, length and speed; the fall itself
+ * is here.
+ */
+.rain-bg {
+  /* How far past the bottom edge a drop keeps going before it wraps. */
+  /* --rain-fall-to: 120cqh; */
+  /* --rain-slant: -8deg; */
+  --rain-fall-to: 120cqh;
+  --rain-slant: 0deg;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--rt-accent) 18%, var(--bg-color)) 0%,
+    var(--bg-color) 100%
+  );
+}
+
+/* The content is unpositioned, so without this it would paint under the layer. */
+.rain-bg > *:not(.rain-bg-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+.rain-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  container-type: size;
+}
+
+.rain-bg-drop {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  /* Height, column, fade, duration and delay are rolled per drop by the directive. */
+  background-image: linear-gradient(180deg, transparent 0%, color-mix(in oklab, var(--rt-accent) 55%, white) 100%);
+  animation: rain-fall 0.8s linear infinite;
+}
+
+@keyframes rain-fall {
+  from {
+    transform: translate3d(0, -20cqh, 0) rotate(var(--rain-slant));
+  }
+  to {
+    transform: translate3d(0px, var(--rain-fall-to), 0) rotate(var(--rain-slant));
+  }
+}
+
+/**
+ * Snow background. SnowBgAnimation (see bg.directive.ts) injects
+ * .snow-bg-layer with the flakes and rolls each one's column, size and pace;
+ * the fall and the drift are here.
+ */
+.snow-bg {
+  /* How far past the bottom edge a flake keeps going before it wraps. */
+  --snow-fall-to: 110cqh;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background-image: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--rt-accent) 14%, var(--bg-color)) 0%,
+    var(--bg-color) 85%
+  );
+}
+
+/* The content is unpositioned, so without this it would paint under the layer. */
+.snow-bg > *:not(.snow-bg-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+.snow-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Size container, so a flake falls the height of its own section (cqh). */
+  container-type: size;
+}
+
+/* The outer half of a flake: falls at a steady rate, nothing else. */
+.snow-bg-flake {
+  position: absolute;
+  top: 0;
+  /* Column, duration and delay are rolled per flake by the directive. */
+  animation: snow-fall 12s linear infinite;
+}
+
+/* The inner half: sways across the fall, so the two transforms do not collide. */
+.snow-bg-flake-body {
+  --snow-sway: 12px;
+
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 0 4px 0 rgb(255 255 255 / 0.5);
+  animation: snow-sway 3s ease-in-out infinite alternate;
+}
+
+@keyframes snow-fall {
+  from {
+    transform: translate3d(0, -10cqh, 0);
+  }
+  to {
+    transform: translate3d(0, var(--snow-fall-to), 0);
+  }
+}
+
+@keyframes snow-sway {
+  from {
+    transform: translate3d(calc(var(--snow-sway) * -1), 0, 0);
+  }
+  to {
+    transform: translate3d(var(--snow-sway), 0, 0);
+  }
+}
+
+/**
+ * Matrix background. Unlike the others the particles are painted, not styled:
+ * MatrixBgAnimation (see bg.directive.ts) injects the .matrix-bg-layer canvas
+ * and draws into it, picking the glyph colour up from `color` below.
+ */
+.matrix-bg {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background-image: linear-gradient(
+    180deg,
+    var(--bg-color) 0%,
+    color-mix(in oklab, var(--rt-accent) 16%, var(--bg-color)) 100%
+  );
+}
+
+/* The content is unpositioned, so without this it would paint under the layer. */
+.matrix-bg > *:not(.matrix-bg-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+.matrix-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Read back by the directive and used as the glyph colour. */
+  color: var(--rt-accent);
+  /* The rain is scenery, not content - it should never outshout the section. */
+  opacity: 0.55;
+}
+
+/**
+ * Stars background. StarsBgAnimation (see bg.directive.ts) injects
+ * .stars-bg-layer, scatters the field once and re-aims the meteors between
+ * passes; the twinkle and the streak are here.
+ */
+.stars-bg {
+  /* How far a meteor travels. Both legs are cqw, so the angle below holds
+     whatever shape the section is. */
+  --stars-meteor-x: 70cqw;
+  --stars-meteor-y: 25cqw;
+  --stars-meteor-angle: 20deg;
+
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  /* Night sky with the theme colour sitting low, like a glow off the horizon. */
+
+  background-color: color-mix(in oklab, var(--rt-accent) 20%, var(--bg-color));
+  /* background-image: radial-gradient(
+    120% 80% at 50% 110%,
+    color-mix(in oklab, var(--rt-accent) 30%, var(--bg-color)) 0%,
+    var(--bg-color) 60%
+  ); */
+}
+
+/* The content is unpositioned, so without this it would paint under the layer. */
+.stars-bg > *:not(.stars-bg-layer) {
+  position: relative;
+  z-index: 1;
+}
+
+.stars-bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Size container, so a meteor crosses its own section (cqw). */
+  container-type: size;
+}
+
+.stars-bg-star {
+  --stars-peak: 70%;
+
+  position: absolute;
+  border-radius: 50%;
+  background-color: white;
+  /* Position, size, peak brightness, duration and delay come from the directive. */
+  animation: stars-twinkle 3s ease-in-out infinite alternate;
+}
+
+@keyframes stars-twinkle {
+  from {
+    opacity: 0.15;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: var(--stars-peak);
+    transform: scale(1);
+  }
+}
+
+.stars-bg-meteor {
+  position: absolute;
+  width: 90px;
+  height: 1px;
+  opacity: 0;
+  will-change: transform, opacity;
+  border-radius: 1px;
+  /* Head on the leading edge, tail fading out behind it. */
+  background-image: linear-gradient(90deg, transparent 0%, color-mix(in oklab, var(--rt-accent) 40%, white) 100%);
+  animation: stars-meteor 12s linear infinite;
+}
+
+/**
+ * The pass takes the first ~12% of the cycle; the rest is the wait in between,
+ * held off-screen at full travel so the re-aim never shows.
+ */
+@keyframes stars-meteor {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(var(--stars-meteor-angle)) scaleX(0.2);
+  }
+  3% {
+    opacity: 1;
+  }
+  12%,
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--stars-meteor-x), var(--stars-meteor-y), 0) rotate(var(--stars-meteor-angle)) scaleX(1);
+  }
+}
+
+mat-paginator {
+  .mat-mdc-notch-piece {
+    border: none;
+    border-bottom: 1px solid var(--br-color);
+    border-radius: 0;
+  }
+}
+
+/**
+ * enableAnimations = false. UiConfigService writes data-animations onto <html>.
+ *
+ * The scroll-in effects above work by parking an element in a hidden state
+ * (translated, faded, blurred) that only clears once AppearDirective adds
+ * .animate. Simply removing the transition would leave those elements stuck in
+ * that hidden state, so this resets them to their resting values instead - the
+ * element renders where it belongs, immediately, whether or not .animate ever
+ * arrives.
+ */
+html[data-animations='off'] {
+  .rise > *,
+  .fly-up,
+  .move-left,
+  .move-right,
+  .unblur,
+  .reveal img {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+
+  /* The backgrounds stay, their particles just stop where they are. */
+  [class$='-bg-layer'],
+  [class$='-bg-layer'] * {
+    animation: none !important;
+  }
+}
+
+html {
+  --mat-dialog-container-shape: 0;
+  scrollbar-gutter: stable; /* gutter always reserved; no reflow when it appears/disappears */
+}
+
+.search-downloads {
+  .mat-mdc-notch-piece {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+}
+
+.cdk-overlay-backdrop {
+  backdrop-filter: blur(4px);
+}
+
+.mat-mdc-dialog-surface.mdc-dialog__surface {
+  background-color: transparent;
+  border-radius: --mat-sys-corner-medium;
+}
+
+.mat-mdc-dialog-component-host {
+  display: block !important;
+  background-color: var(--mat-sys-surface-container-low);
+  border-radius: var(--mat-sys-corner-medium);
+}
+
+.mat-mdc-form-field-required-marker::after {
+  color: var(--mat-sys-primary);
 }

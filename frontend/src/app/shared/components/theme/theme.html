@@ -1,0 +1,68 @@
+<mat-card class="p-4 shadow-xl!">
+  <mat-card-header class="mb-5">
+    <mat-card-title>UI Configuration</mat-card-title>
+    <!-- <mat-card-subtitle class="font-thin!"> Configure the UI of the app </mat-card-subtitle> -->
+  </mat-card-header>
+
+  <mat-card-content class="mt-2">
+    <form [formGroup]="form" (ngSubmit)="saveConfig()" class="grid grid-cols-1 gap-4">
+      <mat-form-field appearance="outline">
+        <mat-label>Theme color</mat-label>
+        <mat-select formControlName="themeColor">
+          @for (option of themeColorOptions; track option) {
+            <mat-option [value]="option">{{ option | titlecase }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="section-bg">
+        <mat-label>Sections background</mat-label>
+        <mat-select formControlName="sectionsBg">
+          <mat-select-trigger class="flex items-end gap-2 w-fit h-full py-0!">
+            @let selectedBg = form.controls.sectionsBg.value | targetIcon;
+            <mat-icon
+              matPrefix
+              [fontIcon]="selectedBg.fontIcon"
+              [svgIcon]="selectedBg.svgIcon"
+              class="text-(--rt-accent)! ml-2"
+            />
+            {{ selectedBg.label | titlecase }}
+          </mat-select-trigger>
+
+          @for (option of sectionOptions; track option.value) {
+            <mat-option [value]="option.value">
+              <mat-icon [fontIcon]="option.fontIcon" [svgIcon]="option.svgIcon" [class]="option.color" />
+              {{ option.label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-slide-toggle
+        formControlName="enableAnimations"
+        matTooltip="Scroll animations"
+        matTooltipPosition="left"
+        labelPosition="before"
+      >
+        <div class="flex items-center">
+          <mat-icon fontIcon="animation" />
+          <span class="mx-2">Animations</span>
+        </div>
+      </mat-slide-toggle>
+
+      <mat-slide-toggle
+        labelPosition="before"
+        matTooltip="Automatically paste the clipboard content into the URL input when the page loads or the input/download btn is clicked."
+        matTooltipPosition="left"
+        [checked]="form.controls.autoPaste.value"
+        (change)="trackAutoPaste($event.checked)"
+        #autoPasteToggle
+      >
+        <div class="flex items-center">
+          <mat-icon fontIcon="content_paste" />
+          <span class="mx-2">Auto paste</span>
+        </div>
+      </mat-slide-toggle>
+    </form>
+  </mat-card-content>
+</mat-card>

@@ -1,0 +1,28 @@
+table {
+  td,
+  th {
+    font-family: 'calculator', sans-serif;
+    font-size: 18px;
+  }
+}
+
+.table-container.show-error {
+  &:hover {
+    .error-message {
+      opacity: 1 !important;
+    }
+
+    table {
+      opacity: 0 !important;
+    }
+  }
+
+  table,
+  .error-message {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .error-message {
+    opacity: 0 !important;
+  }
+}
